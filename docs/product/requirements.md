@@ -69,6 +69,8 @@ tests refer to stories by ID, so:
 - IDs are never reused or renumbered. A story that's dropped stays in its file, marked **Removed**, with the
   reason.
 - New stories take the next free number in their area, wherever they go in the file.
+- The [non-functional requirements](non-functional.md) follow the same rules with their own prefixes:
+  `A11Y`, `THEME`, `PRIV`, `OFFLINE`, `PERF`, `PLATFORM`, `SEC`, `LEGAL` and `LANG`.
 
 | Prefix    | Area                                             | File                                                        |
 | --------- | ------------------------------------------------ | ----------------------------------------------------------- |
@@ -283,14 +285,15 @@ and say why in the description.
 15. **Streaming services mark titles; they never hide them.** Once you tell the app which services you have,
     titles available on them get a tick. Titles on other services stay in every list and search. _Why:_ a match
     you can't stream tonight is still worth knowing: you might rent it, see it in a theater or subscribe.
-16. **The server limits how fast one client can call it: at most 50 requests a second.** A client is one app
+16. **The server limits how fast one client can call it: at most 20 requests a second.** A client is one app
     on one device, signed in or not. Requests over the limit get a "slow down" answer (HTTP 429) instead of
     being served. The apps wait and retry by themselves, so a person using the app never notices; a script
     liking titles in bulk is slowed to a crawl. Sign-in emails and codes have their own, stricter limits
     (AUTH-3, AUTH-5). _Why:_ it protects Likes from being probed by scripts and protects the free-tier server
     from overload, without the cap on honest use that decision 14 rules out. How it's counted (per account,
-    device or IP address) and stored is for the M7 backend ADR; the number goes in the
-    [non-functional requirements](non-functional.md) (#154).
+    device or IP address) and stored is for the M7 backend ADR; the
+    [non-functional requirements](non-functional.md#security) hold the number (SEC-3). It was 50 until #154
+    lowered it: an app used by hand never comes near 20, and a lower limit slows a script further.
 17. **Nothing scrolls sideways.** Every screen scrolls from top to bottom. Groups of titles are grids that
     wrap, and Home picks what its grid shows with chips instead of stacking rows. _Why:_ people scroll down,
     not across, even on the phone. A sideways row hides most of its titles, and it's slow with a mouse, a
@@ -312,18 +315,21 @@ and say why in the description.
 21. **Everyone starts with two lists: Watch later and Binge-watch.** They're ordinary lists you can rename or
     delete, and Watch later is where the add button starts. _Why:_ an app with no lists makes you stop and
     name one before you can save anything; two common ones let you start sorting on day one.
+22. **You must be 13 or older.** The terms say so, and sign-up doesn't ask for a birth date. _Why:_ 13 is the
+    age below which US law (COPPA) requires a parent's consent before collecting data, and the stores ask for
+    an age in the listing. Asking for a birth date would collect data the app doesn't otherwise need.
 
 ## 7. Open questions
 
 Questions the stories depend on but can't answer yet. Each says where it gets answered and which stories wait
 for it.
 
-| Question                                                                                                                                                                                                                                                                                                                                          | Answered in                                                            | Affects                                                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
-| What is the desktop app for? Leading idea: a player for your own video library, possibly with AI features for the videos you add.                                                                                                                                                                                                                 | ADR after M8 and M9 (see the roadmap)                                  | Desktop-only stories                                       |
-| How do we suggest the right title when a search has a typo ("dnue" for Dune)? TMDB forgives some mistakes but has no "did you mean". Options: retry with spelling variants, our own search index with typo tolerance built from TMDB's daily exports, or the M10 agent.                                                                           | A spike before SEARCH-6 (later)                                        | `SEARCH`                                                   |
-| Which domain do the web app, invite links and sign-in emails use? Until one is bought: the web host's free subdomain for the web app and the links, and the email provider's test sender, which only reaches the account owner's inbox. A domain (about $10 a year) is needed before anyone else tests email sign-in, and in any case before M11. | The M7 backend ADR                                                     | `AUTH`, `INVITE`, [deep links](navigation.md#6-deep-links) |
-| How long does a sign-in link live, and how long do you stay signed in?                                                                                                                                                                                                                                                                            | [Non-functional requirements](non-functional.md), then the M7 auth ADR | `AUTH`                                                     |
+| Question                                                                                                                                                                                                                                                                                                                                          | Answered in                           | Affects                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | ---------------------------------------------------------- |
+| What is the desktop app for? Leading idea: a player for your own video library, possibly with AI features for the videos you add.                                                                                                                                                                                                                 | ADR after M8 and M9 (see the roadmap) | Desktop-only stories                                       |
+| How do we suggest the right title when a search has a typo ("dnue" for Dune)? TMDB forgives some mistakes but has no "did you mean". Options: retry with spelling variants, our own search index with typo tolerance built from TMDB's daily exports, or the M10 agent.                                                                           | A spike before SEARCH-6 (later)       | `SEARCH`                                                   |
+| Which domain do the web app, invite links and sign-in emails use? Until one is bought: the web host's free subdomain for the web app and the links, and the email provider's test sender, which only reaches the account owner's inbox. A domain (about $10 a year) is needed before anyone else tests email sign-in, and in any case before M11. | The M7 backend ADR                    | `AUTH`, `INVITE`, [deep links](navigation.md#6-deep-links) |
+| Do the web and phone apps call TMDB directly, or through our server? Through the server keeps the TMDB key private and allows a shared cache, but every person then shares TMDB's limit of about 40 requests a second for one IP address ([security](non-functional.md#security)).                                                                | The M8 web ADR                        | `HOME`, `SEARCH`, `TITLE`, `PERSON`                        |
 
 ## Where the stories are
 

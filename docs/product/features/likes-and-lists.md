@@ -79,7 +79,7 @@ count on a Like or a match that never happened.
 
 **Removed.** There's no limit on how many titles you can like
 ([decision 14](../requirements.md#6-decisions)): nobody liking by hand gets near "everything". Scripts are
-slowed by the server's limit of 50 requests a second per client
+slowed by the server's limit of 20 requests a second per client
 ([decision 16](../requirements.md#6-decisions)), which no person reaches. If a save is slowed, the heart
 behaves as in LIKE-3: it stays filled and the app retries by itself.
 
