@@ -305,17 +305,17 @@ just doesn't display it.
 
 ## States
 
-| Situation                        | What the person sees                                                                                                   |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Loading                          | The layout appears at once, with skeletons where posters, text and grids will be. No spinner over a blank page.        |
-| One section fails                | That section says "Couldn't load the cast" with **Try again**; the rest of the page works.                             |
-| TMDB down or the request fails   | The screen says "We can't reach the movie database right now" with **Try again**. Your Likes and lists still open.     |
-| Offline                          | A notice at the top. Screens already loaded stay; new ones say "You're offline" with **Try again**.                    |
-| Title or person not found        | "This title isn't available anymore" (or person), with **Go to Home**. If it's in your Likes, you can still remove it. |
-| No poster                        | A plain tile with the title in text, the same size as a poster                                                         |
-| No backdrop                      | The header uses the poster's colors as its background                                                                  |
-| No description                   | "No description yet." in muted text                                                                                    |
-| Content missing in your language | TMDB's English text, never an empty field                                                                              |
+| Situation                        | What the person sees                                                                                                              |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Loading                          | The layout appears at once, with skeletons where posters, text and grids will be. No spinner over a blank page.                   |
+| One section fails                | That section says "Couldn't load the cast" with **Try again**; the rest of the page works.                                        |
+| TMDB down or the request fails   | The screen says "We can't reach the movie database right now" with **Try again**. Your Likes and lists still open.                |
+| Offline                          | The offline banner at the top of the app (LIKE-3). Screens already loaded stay; new ones say "You're offline" with **Try again**. |
+| Title or person not found        | "This title isn't available anymore" (or person), with **Go to Home**. If it's in your Likes, you can still remove it.            |
+| No poster                        | A plain tile with the title in text, the same size as a poster                                                                    |
+| No backdrop                      | The header uses the poster's colors as its background                                                                             |
+| No description                   | "No description yet." in muted text                                                                                               |
+| Content missing in your language | TMDB's English text, never an empty field                                                                                         |
 
 ## Later
 
