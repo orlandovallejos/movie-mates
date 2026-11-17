@@ -194,7 +194,8 @@ time.
 - [ ] You stay signed in on a device until you sign out or don't use the app for 90 days
 - [ ] When a session ends, the app shows the welcome screen with "You've been signed out. Sign in again to
       continue." and returns to the same screen after sign-in
-- [ ] Likes or other changes made just before the session ended are sent after you sign in again, not lost
+- [ ] A change that was being saved when the session ended fails like any failed save (LIKE-3) and can be
+      made again after signing in
 
 ### AUTH-13 · Sign out
 
@@ -204,8 +205,6 @@ As someone on a shared computer, I want to sign out, so that the next person can
 
 - [ ] In Settings → Account, and on desktop also in the app menu
 - [ ] No confirmation: signing back in takes a minute, and an extra dialog doesn't protect anything
-- [ ] If there are changes not sent yet (offline), it warns first: "2 Likes haven't been saved yet. Sign out
-      anyway?"
 - [ ] Removes everything the app stored on the device for that account (Likes, lists, images it cached), then
       shows the welcome screen
 - [ ] Other devices stay signed in
