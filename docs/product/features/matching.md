@@ -380,13 +380,13 @@ As someone who missed a notification, I want to see recent ones in the app, so t
 
 ## States
 
-| Situation              | What the person sees                                                                                                                                                          |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Loading a shared list  | The header with both photos at once; poster skeletons in the grid                                                                                                             |
-| Offline                | Lists open as last seen, with "You're offline. Matches may be out of date." Creating, accepting and revoking invites, and ending a connection, are disabled with that reason. |
-| Real-time updates drop | The app reloads the list when it comes back to the front or the connection returns; nothing is lost                                                                           |
-| TMDB down              | Shared lists show titles as plain tiles with title and year; filters by genre and runtime still work from saved data                                                          |
-| The server is down     | "Matches aren't available right now" with **Try again**; Likes made meanwhile are kept (LIKE-3)                                                                               |
+| Situation              | What the person sees                                                                                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Loading a shared list  | The header with both photos at once; poster skeletons in the grid                                                                                                                          |
+| Offline                | The offline banner (LIKE-3). Lists open as last seen, with "Matches may be out of date." Creating, accepting and revoking invites, and ending a connection, are disabled with that reason. |
+| Real-time updates drop | The app reloads the list when it comes back to the front or the connection returns; nothing is lost                                                                                        |
+| TMDB down              | Shared lists show titles as plain tiles with title and year; filters by genre and runtime still work from saved data                                                                       |
+| The server is down     | "Matches aren't available right now" with **Try again**. Liking and saving wait until it's back, as when offline (LIKE-3, decision 20)                                                     |
 
 ## Later
 
