@@ -153,16 +153,17 @@ never. **Milestone** is where the feature is first built.
 
 ### Likes and your own lists
 
-| ID     | Feature                                                       | D     | W     | M     | Release       | Milestone |
-| ------ | ------------------------------------------------------------- | ----- | ----- | ----- | ------------- | --------- |
-| `LIKE` | The heart on posters, the hero and the title page             | ✓     | ✓     | ✓     | first version | M6        |
-| `LIKE` | Likes screen: sort, filter by movie or TV, remove             | ✓     | ✓     | ✓     | first version | M6        |
-| `LIKE` | Likes saved to your account instead of the device             | ✓     | ✓     | ✓     | first version | M7        |
-| `LIKE` | Swipe deck: like or skip titles one card at a time            |       |       | later | later         | —         |
-| `LIKE` | "Not interested": hide a title from picks and Home            | later | later | later | later         | —         |
-| `LIST` | Your own lists: create, rename, delete, add and remove titles | ✓     | ✓     | ✓     | first version | M6        |
-| `LIST` | Your own lists saved to your account (same on every device)   | ✓     | ✓     | ✓     | first version | M7        |
-| `LIST` | Reorder titles in a list                                      | later | later | later | later         | —         |
+| ID     | Feature                                                                                          | D     | W     | M     | Release       | Milestone |
+| ------ | ------------------------------------------------------------------------------------------------ | ----- | ----- | ----- | ------------- | --------- |
+| `LIKE` | The heart on posters, the hero and the title page                                                | ✓     | ✓     | ✓     | first version | M6        |
+| `LIKE` | Likes screen: sort, filter by movie or TV, remove                                                | ✓     | ✓     | ✓     | first version | M6        |
+| `LIKE` | Likes saved to your account instead of the device                                                | ✓     | ✓     | ✓     | first version | M7        |
+| `LIKE` | Swipe deck: like or skip titles one card at a time                                               |       |       | later | later         | —         |
+| `LIKE` | "Not interested": hide a title from picks and Home                                               | later | later | later | later         | —         |
+| `LIST` | Your own lists: create, rename, delete, add and remove titles                                    | ✓     | ✓     | ✓     | first version | M6        |
+| `LIST` | Starter lists (Watch later, Binge-watch), the two-part add button, suggestions for an empty list | ✓     | ✓     | ✓     | first version | M6        |
+| `LIST` | Your own lists saved to your account (same on every device)                                      | ✓     | ✓     | ✓     | first version | M7        |
+| `LIST` | Reorder titles in a list                                                                         | later | later | later | later         | —         |
 
 ### Connections, matches and notifications
 
@@ -302,6 +303,15 @@ and say why in the description.
     title page says when a title isn't available in your region (and, later, when it's not on your
     services). _Why:_ one region keeps the first version simple to build and test, and hiding titles by
     region would stop you from liking something you could still rent, see in a theater or watch later.
+20. **Offline, the app says so and pauses.** A banner at the top of every screen says you're offline. The app
+    makes no calls to the server until you're back: liking, adding to a list and the other actions that save
+    something are disabled with that reason, and nothing is kept to send later. Screens already loaded stay
+    readable. _Why:_ a Like that only looks saved can't make a match, and holding changes to send later means
+    a queue, conflicts and "not saved yet" states on every screen. Being honest about being offline is
+    simpler to build and easier to trust.
+21. **Everyone starts with two lists: Watch later and Binge-watch.** They're ordinary lists you can rename or
+    delete, and Watch later is where the add button starts. _Why:_ an app with no lists makes you stop and
+    name one before you can save anything; two common ones let you start sorting on day one.
 
 ## 7. Open questions
 

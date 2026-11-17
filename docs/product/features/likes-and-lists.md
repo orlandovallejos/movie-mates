@@ -12,6 +12,10 @@ The rules behind these stories, from the
   account, so they're the same on every device (decision 8).
 - A title can be in your Likes, in any number of your own lists, in both or in neither. Adding a title to a
   list doesn't like it, and liking it doesn't add it to a list.
+- Everyone starts with two lists, **Watch later** and **Binge-watch** (LIST-10,
+  [decision 21](../requirements.md#6-decisions)).
+- Saving needs a connection. While you're offline, the app says so in a banner and the heart and **Add to
+  list** wait until you're back ([decision 20](../requirements.md#6-decisions)).
 
 **Milestones.** M6 builds all of this on desktop with the data stored on the device. M7 moves it to the
 account; the device's M6 data isn't moved (decision 2). Web and phone follow in M8 and M9.
@@ -49,22 +53,25 @@ honest.
 - [ ] No confirmation. A short message offers **Undo** for 5 seconds: "Removed from your Likes. Undo"
 - [ ] When the title is a match, the message says so: "Removed from your Likes and your matches with Sam.
       Undo". The match leaves the shared list (decision 6).
-- [ ] A title watched together stays in that list's Watched section (decision 7)
 - [ ] Undo puts the Like back with its original date, and the match comes back with it
 - [ ] **Privacy:** the other person sees the match disappear from the shared list, with no notification and
       no message saying who removed it
 
 ### LIKE-3 · When saving fails
 
-As someone whose connection dropped, I want to know a Like didn't save, so that I don't count on a match that
-will never happen.
+As someone whose connection dropped, I want to know right away that nothing can be saved, so that I don't
+count on a Like or a match that never happened.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
-- [ ] Offline: the Like is kept on the device and sent when the connection is back. The heart shows a small
-      "not saved yet" mark until then.
-- [ ] The server refuses it (an error, not a lost connection): the heart empties again and a message says
-      "Couldn't save your Like" with **Try again**
+- [ ] Offline: a banner at the top of the app, on every screen, says "You're offline. Likes and lists can't
+      be saved until you're back online." ([decision 20](../requirements.md#6-decisions))
+- [ ] While offline the app makes no calls to the server. The heart and **Add to list** stay visible but
+      disabled, and tapping them repeats the banner's message. Nothing is kept to send later.
+- [ ] Screens already loaded stay readable. When the connection is back, the banner goes away and everything
+      works again without a reload.
+- [ ] The connection drops in the middle of a save: the heart empties again and a message says "Couldn't save
+      your Like" with **Try again**, the same as when the server refuses it
 - [ ] Unlikes follow the same rules
 - [ ] In M6 there's no server: a failed write to the device shows the same message
 
@@ -111,7 +118,11 @@ As a new member, I want the empty Likes screen to tell me what to do, so that I 
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M6 (D), M8 (W), M9 (M)
 
-- [ ] "Tap the heart on anything you'd like to watch. Only you will see it." with **Browse titles** (Home)
+- [ ] A short animation shows what to do instead of a paragraph: a finger taps the heart on a poster and the
+      heart fills. One line under it: "Tap the heart on anything you'd like to watch." and **Browse titles**
+      (Home).
+- [ ] Uses the same animation style as the welcome screen (AUTH-1); with reduced motion on, it's a still
+      picture of the filled heart. Screen readers hear the line of text.
 - [ ] The privacy cue is shown here too
 
 ## Your own lists
@@ -123,9 +134,9 @@ apart from the rest.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M6 (D), M8 (W), M9 (M)
 
-- [ ] **New list** on the Your lists screen and in the "Add to list" picker (LIST-2)
+- [ ] **New list** on the Your lists screen and in the "Add to list" menu (LIST-2)
 - [ ] A name of 1 to 50 characters, trimmed; two of your lists can't have the same name (ignoring case)
-- [ ] Creating from the picker adds the title to the new list at the same time
+- [ ] Creating from the menu adds the title to the new list at the same time
 - [ ] A new list shows its empty state (LIST-8)
 
 ### LIST-2 · Add a title to your lists
@@ -134,10 +145,16 @@ As someone looking at a title, I want to put it in one or more of my lists, so t
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M6 (D), M8 (W), M9 (M)
 
-- [ ] **Add to list** on the title page, and from a poster's menu (right-click or the ⋯ button on desktop and
-      web, a long press on the phone)
-- [ ] A picker with every list and a checkbox each; ticking adds, unticking removes, at once, without a Save
-      button. **New list** at the top.
+- [ ] On the title page, a two-part button:
+  - **The main part** names your last used list and adds to it in one tap: "Add to Watch later". Your first
+    time, it's **Watch later** (LIST-10). When the title is already there, it says "In Watch later ✓", and
+    tapping it removes the title, with **Undo**.
+  - **The arrow part** opens a menu with every list and a checkbox each. Ticking adds and unticking removes,
+    at once, without a Save button. **New list** at the top creates one right there (LIST-1) and adds the
+    title to it.
+- [ ] The list you add to last becomes the main part's list, on every device (stored on the account from M7)
+- [ ] On posters, the same menu opens from the poster's menu (right-click or the ⋯ button on desktop and web,
+      a long press on the phone)
 - [ ] A message confirms: "Added to Horror to watch alone"
 - [ ] Adding to a list doesn't like the title
 - [ ] **Privacy:** your own lists are never used for matching and never shown to anyone
@@ -151,7 +168,7 @@ As someone with several lists, I want them all on one screen, so that I can open
 - [ ] Each list shows its name, the number of titles and the first four posters as a small collage
 - [ ] Ordered by the last change, newest first
 - [ ] The same "Only you can see your lists" cue as on Likes
-- [ ] No lists yet: "Make lists for any mood, like "Sunday films" or "Horror to watch alone". Only you see
+- [ ] No lists (only if you deleted the starter lists too): "Make lists for any mood, like "Sunday films" or "Horror to watch alone". Only you see
       them." with **New list**
 
 ### LIST-4 · Open a list
@@ -171,7 +188,7 @@ As someone tidying a list, I want to take a title out of it, so that the list st
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M6 (D), M8 (W), M9 (M)
 
-- [ ] From the poster's menu on the list page, or by unticking it in the picker (LIST-2)
+- [ ] From the poster's menu on the list page, or by unticking it in the list menu (LIST-2)
 - [ ] No confirmation. A message offers **Undo** for 5 seconds.
 - [ ] The title stays in your Likes and your other lists
 
@@ -202,19 +219,41 @@ As someone who just made a list, I want to know how to fill it, so that I don't 
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M6 (D), M8 (W), M9 (M)
 
-- [ ] "Nothing here yet. Use **Add to list** on any title." with **Browse titles**
+- [ ] A short, playful animation instead of a block of text: a poster dropping into the list. One line under
+      it: "Nothing here yet." with **Browse titles**. Still picture with reduced motion on.
+- [ ] **Suggestions** below it, based on the list's name: a list called "Marvel" suggests Marvel movies and TV
+      shows, using the same search as SEARCH-5 (studios, franchises and keywords) and then title search. Each
+      suggestion has the heart and an **Add** button for this list. 20, then **Show more**.
+- [ ] When the name finds nothing useful (and for **Watch later** and **Binge-watch**), the suggestions are
+      trending titles instead: trending movies for Watch later, trending TV shows for Binge-watch
+- [ ] Suggestions come from TMDB only. Offline or with TMDB down, only the animation and the line show.
+- [ ] **Privacy:** the list's name is sent to TMDB as a search, like any search you type, and to nobody else
+
+### LIST-10 · Start with two lists
+
+As a new member, I want a couple of lists ready, so that I can sort titles from the first day without
+setting anything up.
+
+**Clients:** D W M · **Release:** first version · **Milestone:** M6 (D), M8 (W), M9 (M)
+
+- [ ] Every account starts with two empty lists, **Watch later** and **Binge-watch**, in that order
+      ([decision 21](../requirements.md#6-decisions)). In M6, before accounts, they're created on the device
+      the first time the app opens.
+- [ ] They're ordinary lists: you can rename or delete them, and they count toward the limit of 100
+- [ ] A deleted starter list doesn't come back
+- [ ] **Watch later** is the list the add button (LIST-2) starts with
 
 ## Limits
 
 Your own lists have limits high enough that nobody reaches them by normal use, low enough to protect the server
 and the screens. Likes have none.
 
-| What               | Limit         | At the limit                                                                 |
-| ------------------ | ------------- | ---------------------------------------------------------------------------- |
-| Likes              | None          | No limit ([decision 14](../requirements.md#6-decisions))                     |
-| Your own lists     | 100           | **New list** is disabled with "You've reached 100 lists."                    |
-| Titles in one list | 1,000         | That list is disabled in the picker with "This list is full (1,000 titles)." |
-| List name          | 50 characters | The field stops accepting characters and shows the count                     |
+| What               | Limit         | At the limit                                                                    |
+| ------------------ | ------------- | ------------------------------------------------------------------------------- |
+| Likes              | None          | No limit ([decision 14](../requirements.md#6-decisions))                        |
+| Your own lists     | 100           | **New list** is disabled with "You've reached 100 lists."                       |
+| Titles in one list | 1,000         | That list is disabled in the list menu with "This list is full (1,000 titles)." |
+| List name          | 50 characters | The field stops accepting characters and shows the count                        |
 
 Grids show 20 titles and add 30 with each **Show more** (decision 18), so a list of 1,000 titles opens as fast
 as one of 20.
@@ -224,23 +263,22 @@ as one of 20.
 From M7, Likes and your own lists live on your account and every device shows the same thing (decision 8).
 
 - [ ] A change on one device shows on your other open devices within a few seconds, without a reload
-- [ ] Changes made offline are sent when the connection is back, in the order they were made
-- [ ] When two devices change the same thing while offline, the latest change wins (by the time it was made),
-      for each title and each list name separately. Adding different titles to the same list on two devices
-      keeps both.
+- [ ] Nothing is saved while offline (LIKE-3), so there are no offline changes to send later
+- [ ] When two devices change the same thing at almost the same time, the latest change wins, for each title
+      and each list name separately. Adding different titles to the same list on two devices keeps both.
 - [ ] Deleting a list on one device while another adds to it: the delete wins, and the other device says
       "This list was deleted on another device"
 - [ ] **Privacy:** syncing is between your own devices only; nothing in it reaches a connection
 
 ## States
 
-| Situation                    | What the person sees                                                                                       |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Loading Likes or a list      | Poster skeletons in the grid; the header with the count appears as soon as it's known                      |
-| Offline                      | Likes and lists open from the device. Changes are kept and marked "not saved yet" (LIKE-3).                |
-| Saving fails                 | LIKE-3 for the heart; the picker unticks the list again with "Couldn't add to the list" and **Try again**  |
-| TMDB down                    | Grids show the saved title and year with plain tiles instead of posters; opening a title says TMDB is down |
-| A title is no longer on TMDB | It stays in your Likes or list as a plain tile, "Not available anymore", and can be removed                |
+| Situation                    | What the person sees                                                                                                       |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Loading Likes or a list      | Poster skeletons in the grid; the header with the count appears as soon as it's known                                      |
+| Offline                      | The banner from LIKE-3. Likes and lists open as last loaded; the heart and **Add to list** are disabled until you're back. |
+| Saving fails                 | LIKE-3 for the heart; the list menu (LIST-2) unticks the list again with "Couldn't add to the list" and **Try again**      |
+| TMDB down                    | Grids show the saved title and year with plain tiles instead of posters; opening a title says TMDB is down                 |
+| A title is no longer on TMDB | It stays in your Likes or list as a plain tile, "Not available anymore", and can be removed                                |
 
 ## Later
 
