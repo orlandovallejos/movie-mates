@@ -130,7 +130,8 @@ still answer.
 
 - [ ] An **Invites for you** section at the top of the Connections screen, with the same Accept and Decline
       as INVITE-4, until the invite expires
-- [ ] A dot on Connections in the navigation while one is waiting
+- [ ] A dot while one is waiting: on **Connections** in the sidebar (desktop and web), and on the **Matches**
+      tab on the phone, where Connections opens from ([navigation](../navigation.md#3-navigation-per-client))
 
 ## Connections
 
