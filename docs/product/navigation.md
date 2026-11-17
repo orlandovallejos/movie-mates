@@ -99,6 +99,10 @@ Full screen, with no navigation, on the first sign-in only. Back goes to the pre
 | Choose a region | List inside Settings (D W), full screen with search (M)        | SET-4                           | D W M   | —                          |
 | Delete account  | Full screen                                                    | AUTH-14, AUTH-15                | D W M   | `/settings/account/delete` |
 
+**Stories with no screen of their own:** AUTH-10 (which account you land in), ONBOARD-6 (onboarding ends on
+Home), LIKE-3 (the offline banner and failed saves, [section 3](#on-every-screen)), LIST-10 (Your lists starts
+with two lists) and CONN-4 (reconnecting is a new invite).
+
 **Later** stories need room but no screen yet: the swipe deck (LIKE-8) would be a sixth phone screen opened
 from Home, not a tab; hidden titles (LIKE-9), streaming services (SET-11) and desktop settings (SET-12) are
 new Settings groups.
