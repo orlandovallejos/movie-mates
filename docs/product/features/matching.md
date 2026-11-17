@@ -13,6 +13,13 @@ The rules behind these stories, from the [roadmap](../../ROADMAP.md#how-likes-li
 - An unlike removes the match. Ending a connection deletes the shared list for both. Reconnecting rebuilds it
   from current Likes. Titles watched together stay in the Watched section (decisions 6 and 7).
 
+**Real-time updates.** Every change that reaches the other person (a new match, an unlike that removes one, a
+title marked watched, an accepted invite, an ended connection) is pushed to their app as a real-time event
+over the connection M7 builds (WebSockets; the details go in the M7 backend ADR). An open app shows the change
+within a few seconds, without a reload. A closed app, or one that lost its connection, asks the server for
+what changed when it opens or reconnects. Push notifications on the phone (NOTIF-4) are separate: they reach
+a phone whose app is closed.
+
 Unless a story says otherwise, it's on every client and ships in M7 on desktop, M8 on the web and M9 on the
 phone. Invite links work in any browser from M7, because M7 includes the web page that opens them.
 
@@ -166,7 +173,9 @@ sharing a list.
 - [ ] Asks first: "End your connection with Sam? Your shared list (12 matches, 3 watched) is deleted for both
       of you. Your Likes and your lists stay." with **End connection** and **Cancel**
 - [ ] No undo: the list is deleted at once, for both people (decision 6)
-- [ ] The other person's connection and list disappear the next time their app updates, with no notification
+- [ ] The other person's connection and list disappear within a few seconds if their app is open (a
+      real-time event, described at the top of this file), or as soon as they open it. There's no
+      notification.
 - [ ] Either person can invite the other again later (CONN-4)
 - [ ] **Privacy:** P5
 
@@ -228,7 +237,8 @@ things we already want.
 - [ ] Each poster opens the title page, which shows "Match with Sam" (TITLE-7)
 - [ ] **Pick one for us** (MATCH-5) is the main action; filters (MATCH-4) are above the grid
 - [ ] The **Watched** section is at the bottom (MATCH-7)
-- [ ] Both people see the same list at the same time; a change by one shows for the other within seconds
+- [ ] Both people see the same list at the same time; a change by one shows for the other within a few
+      seconds (a real-time event)
 - [ ] **Privacy:** P1, P2
 
 ### MATCH-4 · Filter the shared list
