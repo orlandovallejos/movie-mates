@@ -52,8 +52,9 @@ As someone whose name came out wrong from Google, I want to change it, so that m
 
 - [ ] First set during onboarding (ONBOARD-1), from Google or Apple when they give one
 - [ ] 1 to 40 characters, trimmed; any script or emoji is allowed
-- [ ] The new name shows to your connections the next time their app updates, and on invites you send after
-      the change
+- [ ] The new name reaches your connections as a real-time event (see "Real-time updates" in
+      [matching](matching.md)): within a few seconds if their app is open, or when they next open it. Invites
+      you send after the change use it too.
 - [ ] Stored on the account
 
 ### PROFILE-3 · Add or change your photo
