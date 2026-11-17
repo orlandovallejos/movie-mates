@@ -37,6 +37,8 @@ name or photo.
 - [ ] Photo, name and email address at the top, with **Edit profile**
 - [ ] **Country**, United States by default, with **Change** (the same setting as Region in SET-4)
 - [ ] Counts that open their screens: Likes, your lists, connections, matches (all shared lists together)
+- [ ] **Your lists:** each of your own lists (starting with Watch later and Binge-watch, LIST-10) with its
+      number of titles, opening the list, and **New list**
 - [ ] A lock and "Only you see this page" under the header
 - [ ] A link to Settings
 - [ ] **Privacy:** P4 in [matching](matching.md#privacy-rules). Nobody else can open this page, and the counts
