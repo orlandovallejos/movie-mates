@@ -199,7 +199,7 @@ phone (M9).
 | `SET`     | Desktop: launch at login, update settings                                | later |       |       | later         | —         |
 | `SET`     | About: version, TMDB attribution, open source licenses, report a problem | ✓     | ✓     | ✓     | first version | M5        |
 | `SET`     | Privacy policy and terms                                                 | ✓     | ✓     | ✓     | first version | M11       |
-| `SET`     | Interface in other languages                                             | later | later | later | later         | —         |
+| `SET`     | Interface in Spanish and Portuguese, then other languages                | later | later | later | later         | —         |
 
 ### Beyond these areas
 
@@ -267,8 +267,10 @@ and say why in the description.
    System. _Why:_ dark suits posters and evenings, but a light theme added later means every screen is
    redesigned twice. The tokens have both modes from M4.
 10. **Language: the interface is in English in the first version.** TMDB content (titles, descriptions, where
-    to watch) follows the language and region setting. _Why:_ translating the interface is real work for every
-    screen; TMDB already translates its content for free.
+    to watch) follows the language and region setting. Spanish and Portuguese come next (SET-14, later), so
+    from M5 every piece of interface text goes through an i18n library (LANG-5). _Why:_ translating the
+    interface is real work for every screen, and TMDB already translates its content for free. Keeping the
+    text out of the code from the start makes a new language a translation job, not a rewrite of every screen.
 11. **Search ships in M5, before accounts.** _Why:_ onboarding (M7) lets you search for a favorite, and search
     only needs TMDB, so it belongs with the other browsing work.
 12. **These extras are in the first version:** delete account and download my data, TMDB attribution, a short

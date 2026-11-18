@@ -218,9 +218,18 @@ TMDB through our server, every person would share the server's limit; that choic
 
 ## Language
 
-| ID     | Requirement                                                                                                                    |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| LANG-1 | The interface is in English in the first version ([decision 10](requirements.md#6-decisions))                                  |
-| LANG-2 | TMDB content follows the language setting, with TMDB's English text when it has nothing in that language, never an empty field |
-| LANG-3 | Dates and numbers follow the device's format ("Nov 17" or "17 Nov")                                                            |
-| LANG-4 | Names and list names accept any script and emoji, and show without being cut mid-character                                     |
+| ID     | Requirement                                                                                                                                                                            |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LANG-1 | The interface is in English in the first version ([decision 10](requirements.md#6-decisions)). Spanish and Portuguese come next (SET-14, later).                                       |
+| LANG-2 | TMDB content follows the language setting, with TMDB's English text when it has nothing in that language, never an empty field                                                         |
+| LANG-3 | Dates and numbers follow the device's format ("Nov 17" or "17 Nov")                                                                                                                    |
+| LANG-4 | Names and list names accept any script and emoji, and show without being cut mid-character                                                                                             |
+| LANG-5 | From M5, every piece of interface text comes from a translation catalog, through an i18n library, never written in a component. A lint rule flags text written directly in the markup. |
+| LANG-6 | Plurals and names inside sentences use the library's message format ("1 match", "3 matches", "It's a match with {names}"), never sentences glued together from pieces                  |
+| LANG-7 | Layouts fit text 40% longer than the English, the usual growth for Spanish and Portuguese. A screenshot test runs the app in a stretched fake language (pseudo-localization).          |
+
+Which library is a technical choice for an ADR before M5. It must work in React on the web and desktop and in
+React Native. Two maintained candidates: [i18next](https://www.i18next.com/) with `react-i18next` (the most
+used, with `expo-localization` on the phone) and [Lingui](https://lingui.dev/) (smaller, extracts the text from
+the code by itself). [`eslint-plugin-i18next`](https://github.com/edvardchen/eslint-plugin-i18next) provides
+the lint rule.
