@@ -98,8 +98,8 @@ As someone who knows what they want, I want search one step away, so that I don'
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
 
-- [ ] Reachable from the navigation on every client. Where it sits on each one (for example, a tab of its own
-      on the phone) is decided in [navigation](../navigation.md) (#153).
+- [ ] Reachable from the navigation on every client: a field at the top of the sidebar on desktop and web,
+      and a tab of its own on the phone ([navigation](../navigation.md#3-navigation-per-client))
 - [ ] On desktop and web, ⌘K / Ctrl+K and `/` focus the search field from any screen
 - [ ] Opening search focuses the field and shows the keyboard on the phone
 
