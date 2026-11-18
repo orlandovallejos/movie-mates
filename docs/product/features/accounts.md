@@ -13,8 +13,8 @@ The rules behind these stories, from the [decisions](../requirements.md#6-decisi
   address is the same, so nobody ends up with two accounts by accident.
 
 Unless a story says otherwise, it's on every client and ships in M7 on desktop, M8 on the web and M9 on the
-phone. The time limits (how long a link lives, how many codes you can try) are placeholders until the
-[non-functional requirements](../non-functional.md) set them.
+phone. The time limits (how long a link lives, how many codes you can try) are set in the
+[non-functional requirements](../non-functional.md#security) (SEC-1, SEC-2).
 
 **Contents:** [Welcome](#welcome) · [Email sign-in](#email-sign-in) · [Google and Apple](#google-and-apple) ·
 [After sign-in](#after-sign-in) · [Account](#your-account) · [Onboarding](#onboarding) · [States](#states) ·

@@ -290,3 +290,18 @@ app.
 **Clients:** D W M · **Release:** later
 
 - [ ] A switch in Notifications, off by default, stored on the account (NOTIF-6)
+
+### SET-14 · Use the app in Spanish or Portuguese
+
+As someone who reads Spanish or Portuguese more easily than English, I want the app in my language, so that
+I understand every button and message.
+
+**Clients:** D W M · **Release:** later
+
+- [ ] **Language for the app** in Content: English, Español, Português, each written in its own language.
+      Default: the system language when the app has it, otherwise English.
+- [ ] Changes the interface at once, without a restart; TMDB content keeps following its own setting (SET-4)
+- [ ] Ready because the text has gone through an i18n library since M5
+      ([LANG-5 to LANG-7](../non-functional.md#language)); adding a language means adding a translation, not
+      changing screens
+- [ ] Stored on the account
