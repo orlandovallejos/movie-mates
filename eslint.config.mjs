@@ -36,6 +36,16 @@ export default [
 
   ...tests(['**/*.test.{ts,tsx}', 'apps/desktop/src/setupTests.ts']),
 
+  // Scripts outside the workspaces run in Node, or in headless Chromium (scripts/wireframes/page.js), so
+  // the browser support list doesn't apply, and they report progress on the console.
+  {
+    files: ['scripts/**/*.{js,mjs}'],
+    rules: {
+      'compat/compat': 'off',
+      'no-console': 'off',
+    },
+  },
+
   // Must stay last: turns off the rules that Prettier handles and runs Prettier as a rule.
   prettier,
 ];

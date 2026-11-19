@@ -1,0 +1,5 @@
+# Excalidraw drawings are JSON written by the editor or by scripts/wireframes. GitHub collapses their
+# diffs and leaves them out of the language stats; the PNG exports are what gets reviewed.
+*.excalidraw linguist-generated=true
+*.excalidrawlib linguist-generated=true
+docs/design/wireframes/frames.md linguist-generated=true
