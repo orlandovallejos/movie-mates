@@ -16,6 +16,14 @@ theme come later, in the tokens and Storybook.
 | [`png/`](png/)                           | One PNG per frame, written by the export script. These are what gets reviewed.                |
 | [`frames.md`](frames.md)                 | Every PNG with its name and story IDs, written by the export script                           |
 
+## How they're made
+
+1. **Claude drafts** each file from code, with [`claude-tools/wireframes`](../../../claude-tools/README.md#wireframes).
+   People don't run or edit that code; ask Claude to change a draft.
+2. **People adjust** the drawings in Excalidraw (below). After that, the drafting tool refuses to overwrite
+   the file, so hand edits are never lost.
+3. **The export script** turns every frame into a PNG for review ([Export the PNGs](#export-the-pngs)).
+
 ## Open and edit
 
 The `.excalidraw` files are plain JSON. They're marked `linguist-generated` in `.gitattributes`, so GitHub
