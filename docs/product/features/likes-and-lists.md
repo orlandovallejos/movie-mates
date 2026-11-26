@@ -153,8 +153,13 @@ As someone looking at a title, I want to put it in one or more of my lists, so t
     at once, without a Save button. **New list** at the top creates one right there (LIST-1) and adds the
     title to it.
 - [ ] The list you add to last becomes the main part's list, on every device (stored on the account from M7)
-- [ ] On posters, the same menu opens from the poster's menu (right-click or the ⋯ button on desktop and web,
-      a long press on the phone)
+- [ ] On posters, the poster's menu has, in this order:
+  - **Add to Watch later**, or **Remove from Watch later** when the title is there
+  - **Add to** your last used list, by name ("Add to Horror to watch alone"), when it isn't Watch later
+  - **Add to list…**, which opens the list menu above, with every list and **New list**
+- [ ] The poster's menu opens from the ⋯ button, which shows with the heart on hover and keyboard focus
+      (HOME-4), and with a long press on the phone. On desktop, right-click opens it too. On the web,
+      right-click keeps the browser's own menu (open in a new tab, copy the link).
 - [ ] A message confirms: "Added to Horror to watch alone"
 - [ ] Adding to a list doesn't like the title
 - [ ] **Privacy:** your own lists are never used for matching and never shown to anyone
@@ -208,8 +213,9 @@ As someone who doesn't need a list anymore, I want to delete it, so that my list
 **Clients:** D W M · **Release:** first version · **Milestone:** M6 (D), M8 (W), M9 (M)
 
 - [ ] From the list page's menu, as a destructive action
-- [ ] A list with titles asks first: "Delete "Horror to watch alone"? Its 12 titles stay in your Likes and
-      your other lists." with **Delete** and **Cancel**
+- [ ] A list with titles asks first: "Delete "Horror to watch alone"? The list and its 12 titles will be
+      deleted. Your Likes and your other lists stay as they are." with **Delete** and **Cancel**. It doesn't
+      say the titles stay in your Likes, because a title can be in a list without being liked.
 - [ ] An empty list is deleted without asking, with **Undo** for 5 seconds
 - [ ] After deleting, Your lists is shown
 

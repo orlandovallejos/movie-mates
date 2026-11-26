@@ -6,7 +6,7 @@
 //   npm --prefix scripts/wireframes run export      (all files)
 //   npm --prefix scripts/wireframes run export -- browse.excalidraw --light
 //
-// It runs Excalidraw's own exportToBlob in headless Chromium, with the fonts served from the package,
+// It runs Excalidraw's own export (exportToCanvas, in page.js) in headless Chromium, with the fonts served from the package,
 // so it needs no network and the PNGs match excalidraw.com.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,15 +29,43 @@ const only = args.filter((a) => !a.startsWith('--'));
 const CLIENTS = /^(D|W|M)( (D|W|M))*$/;
 const IDS = /^[A-Z][A-Z0-9]*-\d+( [A-Z][A-Z0-9]*-\d+)*$/;
 
+/**
+ * Turns part of a frame name into the part of a file name it gives: lowercase words joined by hyphens,
+ * without accents or punctuation.
+ *
+ * @param {string} text - Any text, such as a screen or a state from a frame name.
+ * @returns {string} The slug. Empty when the text has no letters or digits.
+ * @example
+ * slugify('Check your email'); // 'check-your-email'
+ * slugify('Text at 200%'); // 'text-at-200'
+ * slugify('Añadir a la lista'); // 'anadir-a-la-lista'
+ */
 function slugify(text) {
   return text
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/\p{Diacritic}/gu, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 }
 
+/**
+ * Reads a frame name written as "Screen · state · layout · story IDs" (see the wireframes README).
+ *
+ * @param {string} name - The frame's name in Excalidraw. The state and the story IDs are optional; the
+ *   layout is `D W`, `M` or `D W M`.
+ * @returns {{ title: string, slug: string, ids: string[] } | { error: string }} The name without the IDs
+ *   (`title`), the part of the PNG file name it gives (`slug`) and the story IDs (`ids`); or an `error`
+ *   saying what the name should look like.
+ * @example
+ * parseName('Check your email · wrong code · M · AUTH-3 AUTH-5');
+ * // { title: 'Check your email · wrong code · M', slug: 'check-your-email--wrong-code--m',
+ * //   ids: ['AUTH-3', 'AUTH-5'] }
+ * parseName('Home · D W');
+ * // { title: 'Home · D W', slug: 'home--dw', ids: [] }
+ * parseName('Home');
+ * // { error: 'expected "Screen · state · D W · ID-1 ID-2" (state and IDs optional)' }
+ */
 function parseName(name) {
   const parts = name.split(' · ').map((p) => p.trim());
   const ids =
@@ -57,6 +85,19 @@ function parseName(name) {
   return { title: [...parts, clients].join(' · '), slug, ids };
 }
 
+/**
+ * Finds the frames in one .excalidraw file, with the elements to export for each and its PNG name, and
+ * collects the names that need fixing.
+ *
+ * @param {{ elements: object[] }} scene - The parsed .excalidraw file.
+ * @param {string} file - The file name, such as `shell.excalidraw`; its base name starts each PNG name.
+ * @returns {{ area: string, frames: object[], problems: string[] }} The base name (`area`); one entry per
+ *   frame with `frame`, `title`, `slug`, `ids`, `png` and `elements` (the frame's children, then the
+ *   frame itself, which is what Excalidraw draws); and one message per bad or duplicate name.
+ * @example
+ * framesOf({ elements: [{ id: 'f1', type: 'frame', name: 'Home · D W' }] }, 'browse.excalidraw');
+ * // { area: 'browse', problems: [], frames: [{ png: 'browse--home--dw.png', title: 'Home · D W', … }] }
+ */
 function framesOf(scene, file) {
   const live = scene.elements.filter((e) => !e.isDeleted);
   const frames = live.filter(
@@ -81,6 +122,18 @@ function framesOf(scene, file) {
   return { area, frames: out, problems };
 }
 
+/**
+ * Bundles page.js with esbuild and opens it in headless Chromium. Every request is answered from disk
+ * (the page, then Excalidraw's fonts from node_modules) and anything else is blocked, so the export never
+ * uses the network.
+ *
+ * @returns {Promise<{ browser: import('playwright').Browser, page: import('playwright').Page }>} The
+ *   browser, to close when done, and the page, where `window.exportFrame` is ready to call.
+ * @example
+ * const { browser, page } = await startBrowser();
+ * const base64 = await page.evaluate((input) => window.exportFrame(input), input);
+ * await browser.close();
+ */
 async function startBrowser() {
   const bundle = await build({
     entryPoints: [path.join(here, 'page.js')],
@@ -124,6 +177,17 @@ async function startBrowser() {
   return { browser, page };
 }
 
+/**
+ * Writes the Markdown of frames.md: one section per .excalidraw file, and under it every frame with its
+ * story IDs and its PNG.
+ *
+ * @param {{ area: string, frames: { title: string, ids: string[], png: string }[] }[]} results - What
+ *   `framesOf` returned for each file, in file name order.
+ * @returns {string} The whole page, ending with one newline.
+ * @example
+ * galleryPage([{ area: 'browse', frames: [{ title: 'Home · D W', ids: ['HOME-1'], png: 'browse--home--dw.png' }] }]);
+ * // '# Every frame\n\n…## browse\n\n…### Home · D W\n\nStories: HOME-1\n\n![Home · D W](png/browse--home--dw.png)\n'
+ */
 function galleryPage(results) {
   const lines = [
     '# Every frame',
@@ -148,6 +212,18 @@ function galleryPage(results) {
   return `${lines.join('\n').trimEnd()}\n`;
 }
 
+/**
+ * Runs the export: checks every frame name, writes one PNG per frame of the chosen files, removes the PNGs
+ * of renamed or deleted frames, and rewrites frames.md. Exits with code 1, listing the names to fix,
+ * before writing anything when a name is wrong.
+ *
+ * @returns {Promise<void>} Resolves when every file is exported.
+ * @example
+ * // node export.mjs                      every file, dark background
+ * // node export.mjs browse.excalidraw    one file
+ * // node export.mjs --light              light background
+ * await main();
+ */
 async function main() {
   const files = fs
     .readdirSync(wireframes)

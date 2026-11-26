@@ -12,6 +12,16 @@ const HUE_180 = [
   [0.426, 1.43, -0.856],
 ];
 
+/**
+ * Turns a light export into Excalidraw's dark mode in place, pixel by pixel: the same result as the CSS
+ * filter "invert(93%) hue-rotate(180deg)", in milliseconds instead of seconds.
+ *
+ * @param {HTMLCanvasElement} canvas - The canvas Excalidraw drew the frame on, light.
+ * @returns {void} The canvas itself is changed.
+ * @example
+ * toDark(canvas);
+ * // a white pixel (255, 255, 255) becomes (18, 18, 18); black (0, 0, 0) becomes (237, 237, 237)
+ */
 function toDark(canvas) {
   const ctx = canvas.getContext('2d');
   const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -27,6 +37,19 @@ function toDark(canvas) {
   ctx.putImageData(image, 0, 0);
 }
 
+/**
+ * Draws one frame with Excalidraw's own export and returns it as a PNG. export.mjs calls it once per frame.
+ *
+ * @param {object} input - What to draw.
+ * @param {object[]} input.elements - The frame's children, then the frame.
+ * @param {object} input.files - The scene's images, by ID (`{}` when there are none).
+ * @param {boolean} input.dark - `true` for a dark background, as in Excalidraw's dark mode.
+ * @param {number} input.scale - Pixels per Excalidraw unit; 2 for the repo's PNGs.
+ * @returns {Promise<string>} The PNG, base64-encoded, to cross from the browser back to Node.
+ * @example
+ * await window.exportFrame({ elements, files: {}, dark: true, scale: 2 });
+ * // 'iVBORw0KGgoAAAANSUhEUgAA…' (a 1280 × 800 frame with notes gives about 3,300 × 1,700 px)
+ */
 window.exportFrame = async ({ elements, files, dark, scale }) => {
   const canvas = await exportToCanvas({
     elements,
