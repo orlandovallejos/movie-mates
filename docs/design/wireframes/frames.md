@@ -3,6 +3,154 @@
 Written by `scripts/wireframes/export.mjs` from the `.excalidraw` files; don't edit it by hand. How to
 edit and export the wireframes: [README](README.md).
 
+## auth
+
+From [`auth.excalidraw`](auth.excalidraw).
+
+### Welcome · D W
+
+Stories: AUTH-1
+
+![Welcome · D W](png/auth--welcome--dw.png)
+
+### Welcome · M
+
+Stories: AUTH-1, AUTH-9
+
+![Welcome · M](png/auth--welcome--m.png)
+
+### Welcome · offline · D W
+
+Stories: AUTH-1
+
+![Welcome · offline · D W](png/auth--welcome--offline--dw.png)
+
+### Welcome · offline · M
+
+Stories: AUTH-1
+
+![Welcome · offline · M](png/auth--welcome--offline--m.png)
+
+### Welcome · Google cancelled · D W
+
+Stories: AUTH-7
+
+![Welcome · Google cancelled · D W](png/auth--welcome--google-cancelled--dw.png)
+
+### Welcome · Google cancelled · M
+
+Stories: AUTH-8
+
+![Welcome · Google cancelled · M](png/auth--welcome--google-cancelled--m.png)
+
+### Enter your email · D W
+
+Stories: AUTH-2
+
+![Enter your email · D W](png/auth--enter-your-email--dw.png)
+
+### Enter your email · M
+
+Stories: AUTH-2
+
+![Enter your email · M](png/auth--enter-your-email--m.png)
+
+### Enter your email · sign-in down · D W
+
+Stories: AUTH-2
+
+![Enter your email · sign-in down · D W](png/auth--enter-your-email--sign-in-down--dw.png)
+
+### Enter your email · sign-in down · M
+
+Stories: AUTH-2
+
+![Enter your email · sign-in down · M](png/auth--enter-your-email--sign-in-down--m.png)
+
+### Check your email · D W
+
+Stories: AUTH-3, AUTH-5
+
+![Check your email · D W](png/auth--check-your-email--dw.png)
+
+### Check your email · M
+
+Stories: AUTH-3, AUTH-5
+
+![Check your email · M](png/auth--check-your-email--m.png)
+
+### Check your email · wrong code · D W
+
+Stories: AUTH-5
+
+![Check your email · wrong code · D W](png/auth--check-your-email--wrong-code--dw.png)
+
+### Check your email · wrong code · M
+
+Stories: AUTH-5
+
+![Check your email · wrong code · M](png/auth--check-your-email--wrong-code--m.png)
+
+### Check your email · too many tries · D W
+
+Stories: AUTH-5
+
+![Check your email · too many tries · D W](png/auth--check-your-email--too-many-tries--dw.png)
+
+### Check your email · too many tries · M
+
+Stories: AUTH-5
+
+![Check your email · too many tries · M](png/auth--check-your-email--too-many-tries--m.png)
+
+### Check your email · offline · D W
+
+Stories: AUTH-5
+
+![Check your email · offline · D W](png/auth--check-your-email--offline--dw.png)
+
+### Check your email · offline · M
+
+Stories: AUTH-5
+
+![Check your email · offline · M](png/auth--check-your-email--offline--m.png)
+
+### Link page · opening the app · W
+
+Stories: AUTH-4
+
+![Link page · opening the app · W](png/auth--link-page--opening-the-app--w.png)
+
+### Link page · signed in here · W
+
+Stories: AUTH-4
+
+![Link page · signed in here · W](png/auth--link-page--signed-in-here--w.png)
+
+### Link page · no longer works · W
+
+Stories: AUTH-6
+
+![Link page · no longer works · W](png/auth--link-page--no-longer-works--w.png)
+
+### Link no longer works · M
+
+Stories: AUTH-6
+
+![Link no longer works · M](png/auth--link-no-longer-works--m.png)
+
+### Finish in your browser · D
+
+Stories: AUTH-7
+
+![Finish in your browser · D](png/auth--finish-in-your-browser--d.png)
+
+### Google sign-in · M
+
+Stories: AUTH-8
+
+![Google sign-in · M](png/auth--google-sign-in--m.png)
+
 ## kit
 
 From [`kit.excalidraw`](kit.excalidraw).

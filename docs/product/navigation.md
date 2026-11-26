@@ -39,6 +39,8 @@ client: D desktop, W web, M phone. **Address** is the web route from [section 5]
 | Google or Apple sign-in          | The system's own sheet        | AUTH-8, AUTH-9             | W M     | —                    |
 | Privacy policy, terms            | Web page, readable signed out | SET-9                      | Browser | `/privacy`, `/terms` |
 
+Wireframes: [every sign-in frame](../design/wireframes/frames.md#auth).
+
 ### Onboarding
 
 Full screen, with no navigation, on the first sign-in only. Back goes to the previous step (ONBOARD-7).

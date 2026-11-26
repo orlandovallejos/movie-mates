@@ -2,6 +2,7 @@
 
 Stories for the welcome screen, signing in and out, deleting your account, and the first minutes in the app.
 Conventions (IDs, fields, the **Privacy:** line) are in the [requirements](../requirements.md#3-conventions).
+The [sign-in wireframes](../../design/wireframes/frames.md#auth) draw these screens on each client.
 
 The rules behind these stories, from the [decisions](../requirements.md#6-decisions):
 
@@ -31,10 +32,14 @@ me to sign in.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [desktop and web](../../design/wireframes/png/auth--welcome--dw.png), [phone](../../design/wireframes/png/auth--welcome--m.png), [offline](../../design/wireframes/png/auth--welcome--offline--dw.png), [offline, phone](../../design/wireframes/png/auth--welcome--offline--m.png).
+
 - [ ] One sentence on what the app does, and a short line saying Likes are private
 - [ ] Two buttons of equal size: **Continue with email** and **Continue with Google** (plus **Continue with
       Apple** on iOS, AUTH-9)
 - [ ] A line under the buttons: "New here? The same buttons create your account."
+- [ ] Under it: "By continuing, you agree to the Terms and the Privacy Policy, and confirm you're 13 or older."
+      Nothing asks for a birth date ([decision 22](../requirements.md#6-decisions), LEGAL-5).
 - [ ] Links to the privacy policy and the terms, and the TMDB attribution
 - [ ] An illustration or short animation above the text that shows the idea: two people on a couch, or two
       hearts meeting and turning into a match. It's part of the app, not loaded from the network.
@@ -57,8 +62,12 @@ As someone signing in, I want to type my email and get a link, so that I don't n
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [desktop and web](../../design/wireframes/png/auth--enter-your-email--dw.png), [phone](../../design/wireframes/png/auth--enter-your-email--m.png), [sign-in down](../../design/wireframes/png/auth--enter-your-email--sign-in-down--dw.png), [sign-in down, phone](../../design/wireframes/png/auth--enter-your-email--sign-in-down--m.png).
+
 - [ ] One field, with the email keyboard on the phone and autofill from the system allowed
 - [ ] **Send link** is enabled once the text looks like an email (something@something.something)
+- [ ] While it sends, the button says "Sending…" and is disabled, so a double tap never sends two emails. No
+      spinner.
 - [ ] A likely typo in a common domain shows a suggestion under the field: "Did you mean name@gmail.com?",
       which fills it in when tapped. It never blocks sending.
 - [ ] **Back** returns to the welcome screen and keeps what was typed
@@ -71,6 +80,8 @@ As someone who asked for a link, I want to know where it went and what to do if 
 I'm not stuck.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/auth--check-your-email--dw.png), [phone](../../design/wireframes/png/auth--check-your-email--m.png), [too many tries](../../design/wireframes/png/auth--check-your-email--too-many-tries--dw.png), [too many tries, phone](../../design/wireframes/png/auth--check-your-email--too-many-tries--m.png).
 
 - [ ] Shows the address the email went to, and **Use a different email** (back to AUTH-2)
 - [ ] Says the email has a link and a 6-digit code, and that either one works
@@ -85,6 +96,8 @@ I'm not stuck.
 As someone who got the email, I want to tap the link and be signed in, so that it takes one tap.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [opening the app](../../design/wireframes/png/auth--link-page--opening-the-app--w.png), [signed in on this browser](../../design/wireframes/png/auth--link-page--signed-in-here--w.png).
 
 - [ ] On the device that asked for the link, the link opens the app that asked (the phone app, the desktop
       app or the browser tab) and signs it in
@@ -102,10 +115,15 @@ the link doesn't open.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [wrong code](../../design/wireframes/png/auth--check-your-email--wrong-code--dw.png), [wrong code, phone](../../design/wireframes/png/auth--check-your-email--wrong-code--m.png), [offline](../../design/wireframes/png/auth--check-your-email--offline--dw.png), [offline, phone](../../design/wireframes/png/auth--check-your-email--offline--m.png).
+
 - [ ] Six digits, in one field that accepts a paste of the whole code (and the phone's "from Messages/Mail"
       suggestion)
 - [ ] Submits by itself when the sixth digit is typed
-- [ ] A wrong code says "That code doesn't match. Check the latest email." and clears the field
+- [ ] While it checks, the field says "Checking…" and can't be typed in
+- [ ] A wrong code says "That code doesn't match. Check the latest email." The code stays in the field,
+      selected, so it can be compared with the email (a swapped digit is the usual mistake) and typed over.
+      Screen readers announce the message.
 - [ ] After 5 wrong codes, the code stops working and the screen asks you to send a new email
 - [ ] The code expires with the link (15 minutes) and works once
 - [ ] Only the newest email's link and code work. Sending a new email cancels the old ones.
@@ -116,6 +134,8 @@ As someone who tapped an old link, I want to know why it failed and get a new on
 in.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [web page](../../design/wireframes/png/auth--link-page--no-longer-works--w.png), [phone](../../design/wireframes/png/auth--link-no-longer-works--m.png).
 
 - [ ] Says the link expired or was already used, without saying which account it was for
 - [ ] **Send a new link** goes to AUTH-2 with the email filled in when the app knows it, and empty otherwise
@@ -128,6 +148,8 @@ in.
 As a desktop user, I want to sign in with my Google account, so that I don't wait for an email.
 
 **Clients:** D · **Release:** first version · **Milestone:** M7
+
+Wireframes: [finish in your browser](../../design/wireframes/png/auth--finish-in-your-browser--d.png), [cancelled](../../design/wireframes/png/auth--welcome--google-cancelled--dw.png).
 
 - [ ] Opens Google's sign-in in the system browser, not inside the app, so the browser's saved Google session
       and password manager work and the app never sees the Google password
@@ -142,6 +164,8 @@ As a web or phone user, I want to sign in with Google in a couple of taps, so th
 
 **Clients:** W M · **Release:** first version · **Milestone:** M8 (W), M9 (M)
 
+Wireframes: [the system sheet](../../design/wireframes/png/auth--google-sign-in--m.png), [cancelled](../../design/wireframes/png/auth--welcome--google-cancelled--m.png).
+
 - [ ] On the web, Google's sign-in opens and returns to the page you were trying to reach
 - [ ] On the phone, the system's Google sign-in sheet is used, with the accounts already on the phone
 - [ ] Cancelling returns to the welcome screen, as in AUTH-7
@@ -151,6 +175,8 @@ As a web or phone user, I want to sign in with Google in a couple of taps, so th
 As an iPhone user, I want to sign in with Apple, so that I can use the account already on my phone.
 
 **Clients:** M (iOS) · **Release:** first version · **Milestone:** M9
+
+Wireframes: [the Apple button](../../design/wireframes/png/auth--welcome--m.png).
 
 - [ ] Shown on iOS only, next to Google, as Apple's guidelines require when Google sign-in is offered
 - [ ] If the person hides their email, the account uses Apple's relay address, and a later Google or email
@@ -190,6 +216,8 @@ As someone who uses the app every few days, I want to stay signed in, so that I 
 time.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [signed out](../../design/wireframes/png/states--signed-out--dw.png), [phone](../../design/wireframes/png/states--signed-out--m.png).
 
 - [ ] You stay signed in on a device until you sign out or don't use the app for 90 days
 - [ ] When a session ends, the app shows the welcome screen with "You've been signed out. Sign in again to
