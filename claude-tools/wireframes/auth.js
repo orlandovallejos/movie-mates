@@ -6,6 +6,7 @@
 import { C, Doc, measure } from './lib';
 import * as ui from './ui';
 import { Board, phoneApp } from './frames';
+import { flowArrow, flowBox } from './flow';
 
 const EMAIL = 'alex@gmail.com';
 const COL = 400;
@@ -431,7 +432,7 @@ function screenM(s, o = {}) {
  * @returns {number} The y under them.
  * @example
  * heading(d, { x: 456, y: 148, w: 400 }, 'Check your email', 'We sent a link and a code.');
- * // → 242
+ * // → 252
  */
 function heading(d, c, title, body, o = {}) {
   const t = d.text(c.x, c.y, title, { size: o.size ?? 28, wrap: c.w });
@@ -528,7 +529,7 @@ function checkEmail(d, c, o = {}) {
         c.x,
         y,
         c.w,
-        "That's 5 wrong codes, so this code stopped working. Send a new email to get a new one."
+        "That's 3 wrong codes, so this code stopped working. Send a new email to get a new one."
       ) + 16;
     ui.button(d, c.x, y, 'Send a new email', {
       variant: 'primary',
@@ -599,6 +600,446 @@ function linkPage(s, o) {
 }
 
 /**
+ * Draws the whole sign-in flow as one flowchart: every way from signed out to signed in, every way back,
+ * and where each one lands afterwards (AUTH-1 to AUTH-12).
+ *
+ * @param {object} s - The frame's area, from `Board.frame` with a size of 1760 × 1800.
+ * @returns {void}
+ * @example
+ * B.frame('Sign-in flow · D W M · AUTH-1', { w: 1760, h: 1800 }, (s) => signInFlow(s));
+ */
+function signInFlow(s) {
+  const { d } = s;
+  // six columns and the rows, from the frame's top left corner
+  const X = [150, 430, 710, 990, 1270, 1550].map((v) => s.x + v);
+  const Y = (v) => s.y + v;
+  const box = (x, y, text, o) => flowBox(d, x, Y(y), text, o);
+
+  // signed out, and the welcome screen
+  const start = box(
+    X[3],
+    60,
+    'Signed out: any address, an invite link, or a session that ended',
+    { kind: 'end', w: 340, ids: 'AUTH-11, AUTH-12' }
+  );
+  const welcome = box(
+    X[3],
+    190,
+    'Welcome: Continue with email or Google (and Apple on iOS)',
+    { w: 260, ids: 'AUTH-1' }
+  );
+  flowArrow(d, [
+    [start.cx, start.b],
+    [welcome.cx, welcome.t],
+  ]);
+
+  // email
+  const email = box(X[2], 330, 'Enter your email', { ids: 'AUTH-2' });
+  flowArrow(
+    d,
+    [
+      [welcome.l, welcome.cy],
+      [email.cx, welcome.cy],
+      [email.cx, email.t],
+    ],
+    { label: 'Continue with email' }
+  );
+  const sent = box(X[2], 480, 'Did the email go out?', { kind: 'question' });
+  flowArrow(
+    d,
+    [
+      [email.cx, email.b],
+      [sent.cx, sent.t],
+    ],
+    { label: 'Send link' }
+  );
+  const notSent = box(
+    X[0],
+    480,
+    'Not sent: "Sign-in isn\'t working right now", or "You can send another email in 40 minutes" (5 an hour)',
+    { kind: 'state', h: 110, size: 13 }
+  );
+  flowArrow(
+    d,
+    [
+      [sent.l, sent.cy],
+      [notSent.r, notSent.cy],
+    ],
+    { label: 'No' }
+  );
+  flowArrow(
+    d,
+    [
+      [notSent.cx, notSent.t],
+      [notSent.cx, email.cy + 15],
+      [email.l, email.cy + 15],
+    ],
+    { label: 'Try again', dash: true }
+  );
+  const check = box(
+    X[2],
+    630,
+    'Check your email: one email with a link and a 6-digit code',
+    { h: 84, ids: 'AUTH-3' }
+  );
+  flowArrow(
+    d,
+    [
+      [sent.cx, sent.b],
+      [check.cx, check.t],
+    ],
+    { label: 'Yes' }
+  );
+  const resend = box(
+    X[0],
+    630,
+    'Resend after 30 seconds, with a spam hint. Only the newest email works.',
+    { kind: 'state', h: 84, size: 13 }
+  );
+  flowArrow(
+    d,
+    [
+      [check.l, check.cy - 16],
+      [resend.r, check.cy - 16],
+    ],
+    { label: "Didn't arrive" }
+  );
+  flowArrow(
+    d,
+    [
+      [resend.r, check.cy + 16],
+      [check.l, check.cy + 16],
+    ],
+    { label: 'Resend', dash: true }
+  );
+  flowArrow(
+    d,
+    [
+      [check.r, check.cy - 12],
+      [s.x + 900, check.cy - 12],
+      [s.x + 900, email.cy],
+      [email.r, email.cy],
+    ],
+    { label: 'Use a different email', at: [s.x + 900, Y(480)], dash: true }
+  );
+
+  // the link
+  const openLink = box(X[1], 780, 'Open the link', { ids: 'AUTH-4' });
+  const code = box(X[3], 780, 'Type the 6-digit code', { ids: 'AUTH-5' });
+  flowArrow(
+    d,
+    [
+      [check.cx, check.b],
+      [check.cx, Y(715)],
+      [openLink.cx, Y(715)],
+      [openLink.cx, openLink.t],
+    ],
+    { label: 'Tap the link', at: [(check.cx + openLink.cx) / 2, Y(715)] }
+  );
+  flowArrow(
+    d,
+    [
+      [check.cx, Y(715)],
+      [code.cx, Y(715)],
+      [code.cx, code.t],
+    ],
+    { label: 'Type the code' }
+  );
+  const linkOk = box(
+    X[1],
+    930,
+    'Still good? (15 minutes, once, newest email)',
+    {
+      kind: 'question',
+      w: 240,
+      h: 130,
+    }
+  );
+  flowArrow(d, [
+    [openLink.cx, openLink.b],
+    [linkOk.cx, linkOk.t],
+  ]);
+  const linkDead = box(
+    X[0],
+    930,
+    'This link no longer works: Send a new link',
+    {
+      kind: 'state',
+      h: 84,
+      ids: 'AUTH-6',
+    }
+  );
+  flowArrow(
+    d,
+    [
+      [linkOk.l, linkOk.cy],
+      [linkDead.r, linkDead.cy],
+    ],
+    { label: 'No' }
+  );
+  flowArrow(
+    d,
+    [
+      [linkDead.l, linkDead.cy],
+      [s.x + 15, linkDead.cy],
+      [s.x + 15, email.cy - 18],
+      [email.l, email.cy - 18],
+    ],
+    {
+      label: 'Send a new link (the address filled in)',
+      at: [s.x + 330, email.cy - 18],
+      dash: true,
+    }
+  );
+  const where = box(X[1], 1080, 'Where was it opened?', {
+    kind: 'question',
+    w: 180,
+  });
+  flowArrow(
+    d,
+    [
+      [linkOk.cx, linkOk.b],
+      [where.cx, where.t],
+    ],
+    { label: 'Yes' }
+  );
+  const desk = box(
+    X[0],
+    1080,
+    "Desktop app asked: the browser page opens it, and shows the code in case it doesn't",
+    { h: 100, size: 13, ids: 'AUTH-4 (W)' }
+  );
+  flowArrow(
+    d,
+    [
+      [where.l, where.cy],
+      [desk.r, desk.cy],
+    ],
+    { label: 'Desktop' }
+  );
+  const other = box(
+    X[2],
+    1080,
+    'Another device: "You\'re signed in on this browser"',
+    { h: 84, ids: 'AUTH-4 (W)' }
+  );
+  flowArrow(
+    d,
+    [
+      [where.r, where.cy],
+      [other.l, other.cy],
+    ],
+    { label: 'Elsewhere' }
+  );
+
+  // the code
+  const codeOk = box(X[3], 930, 'Is the code right?', { kind: 'question' });
+  flowArrow(d, [
+    [code.cx, code.b],
+    [codeOk.cx, codeOk.t],
+  ]);
+  const third = box(X[4], 930, 'Was it the 3rd wrong code?', {
+    kind: 'question',
+  });
+  flowArrow(
+    d,
+    [
+      [codeOk.r, codeOk.cy],
+      [third.l, third.cy],
+    ],
+    { label: 'No' }
+  );
+  const wrong = box(
+    X[4],
+    780,
+    '"That code doesn\'t match." It stays, selected, to fix',
+    { kind: 'state', h: 84, size: 13 }
+  );
+  flowArrow(
+    d,
+    [
+      [third.cx, third.t],
+      [wrong.cx, wrong.b],
+    ],
+    { label: 'No' }
+  );
+  flowArrow(
+    d,
+    [
+      [wrong.l, wrong.cy],
+      [code.r, code.cy],
+    ],
+    { label: 'Try again', dash: true }
+  );
+  const stopped = box(
+    X[4],
+    1080,
+    'The code stopped working: Send a new email',
+    { kind: 'state', h: 84, size: 13 }
+  );
+  flowArrow(
+    d,
+    [
+      [third.cx, third.b],
+      [stopped.cx, stopped.t],
+    ],
+    { label: 'Yes' }
+  );
+  flowArrow(
+    d,
+    [
+      [stopped.r, stopped.cy],
+      [s.x + 1420, stopped.cy],
+      [s.x + 1420, check.cy + 12],
+      [check.r, check.cy + 12],
+    ],
+    {
+      label: 'Send a new email',
+      at: [s.x + 1160, check.cy + 12],
+      dash: true,
+    }
+  );
+
+  // Google and Apple
+  const google = box(
+    X[5],
+    330,
+    "Google in the system browser (D W) or sheet (M); Apple's sheet on iOS",
+    { w: 260, h: 84, size: 13, ids: 'AUTH-7, AUTH-8, AUTH-9' }
+  );
+  flowArrow(
+    d,
+    [
+      [welcome.r, welcome.cy - 15],
+      [google.cx, welcome.cy - 15],
+      [google.cx, google.t],
+    ],
+    {
+      label: 'Continue with Google or Apple',
+      at: [(welcome.r + google.cx) / 2, welcome.cy - 15],
+    }
+  );
+  const done = box(X[5], 480, 'Finished?', { kind: 'question' });
+  flowArrow(d, [
+    [google.cx, google.b],
+    [done.cx, done.t],
+  ]);
+  flowArrow(
+    d,
+    [
+      [done.r, done.cy],
+      [s.x + 1710, done.cy],
+      [s.x + 1710, welcome.cy + 15],
+      [welcome.r, welcome.cy + 15],
+    ],
+    {
+      label: 'Cancelled: "Google sign-in was cancelled."',
+      at: [(welcome.r + s.x + 1710) / 2, welcome.cy + 15],
+      dash: true,
+    }
+  );
+
+  // signed in, and where to next
+  const bar = box(
+    s.x + 850,
+    1220,
+    'Signed in. It lasts until you sign out, or 90 days without using the app (SEC-2).',
+    { kind: 'end', w: 1630, h: 50 }
+  );
+  [
+    [desk, ''],
+    [where, 'Where it was asked for'],
+    [other, ''],
+    [codeOk, 'Yes'],
+    [done, 'Yes'],
+  ].forEach(([from, label]) =>
+    flowArrow(
+      d,
+      [
+        [from.cx, from.b],
+        [from.cx, bar.t],
+      ],
+      { label, at: [from.cx, (from.b + bar.t) / 2] }
+    )
+  );
+  const next = box(X[3], 1350, 'Where to next?', {
+    kind: 'question',
+    ids: 'AUTH-10, AUTH-11',
+  });
+  flowArrow(d, [
+    [next.cx, bar.b],
+    [next.cx, next.t],
+  ]);
+  const invite = box(X[1], 1500, 'Accept or decline the invite', {
+    kind: 'end',
+    ids: 'INVITE-4',
+  });
+  const onboard = box(X[3], 1500, 'Onboarding, at the first unfinished step', {
+    kind: 'end',
+    ids: 'ONBOARD-1, ONBOARD-7',
+  });
+  const back = box(X[5], 1500, 'The screen you tried to open, or Home', {
+    kind: 'end',
+    ids: 'AUTH-11',
+  });
+  flowArrow(
+    d,
+    [
+      [next.l, next.cy],
+      [invite.cx, next.cy],
+      [invite.cx, invite.t],
+    ],
+    { label: 'Came from an invite' }
+  );
+  flowArrow(
+    d,
+    [
+      [next.cx, next.b],
+      [onboard.cx, onboard.t],
+    ],
+    { label: 'New, or onboarding not finished' }
+  );
+  flowArrow(
+    d,
+    [
+      [next.r, next.cy],
+      [back.cx, next.cy],
+      [back.cx, back.t],
+    ],
+    { label: 'Returning' }
+  );
+
+  // what doesn't change the path
+  const panelY = Y(1610);
+  [
+    [
+      s.x + 35,
+      'No passwords',
+      'There is nothing to forget or reset. Every sign-in is the email link or code, Google, or Apple.\n\nForgot which one you used? Any of them with the same verified email opens the same account, with its Likes (AUTH-10).',
+    ],
+    [
+      s.x + 885,
+      'States on the same screen',
+      '• Offline on Welcome: the buttons are disabled, with the reason\n• A likely typo: "Did you mean …?" fills it in; it never blocks\n• While it works: "Sending…" and "Checking…", so nothing is sent twice\n• Offline after sending: the code can be typed, and is kept\n• Every screen after Send link reads the same whether or not the address has an account',
+    ],
+  ].forEach(([x, title, body]) => {
+    d.rect(x, panelY, 780, 170, { r: 10, fill: C.fill, stroke: C.line });
+    d.text(x + 20, panelY + 16, title, { size: 18 });
+    d.text(x + 20, panelY + 50, body, {
+      size: 14,
+      color: C.text,
+      wrap: 740,
+    });
+  });
+  s.note(
+    'Built from the stories: each box shows its IDs. Every arrow out of a question is labeled; dashed arrows go back to an earlier step.'
+  );
+  s.note(
+    'The same flow in text, as a Mermaid chart: navigation.md, "Signing in". Change both together.'
+  );
+}
+
+/**
  * Draws auth.excalidraw: the sign-in frames on desktop and web, and on the phone.
  *
  * @returns {import('./lib').Doc} The drawing.
@@ -610,6 +1051,17 @@ function linkPage(s, o) {
 export default function buildAuth() {
   const d = new Doc('auth');
   const B = new Board(d);
+
+  // The flow ---------------------------------------------------------------------------------------------
+  B.heading(
+    'The sign-in flow',
+    'Every path from signed out to signed in. Dashed arrows go back; gray boxes are states on a screen.'
+  );
+  B.frame(
+    'Sign-in flow · D W M · AUTH-1 AUTH-2 AUTH-3 AUTH-4 AUTH-5 AUTH-6 AUTH-7 AUTH-8 AUTH-9 AUTH-10 AUTH-11 AUTH-12',
+    { w: 1760, h: 1800 },
+    (s) => signInFlow(s)
+  );
 
   // Welcome --------------------------------------------------------------------------------------------
   B.heading(
@@ -774,7 +1226,7 @@ export default function buildAuth() {
       const c = screenDW(s);
       checkEmail(d, c, { tooMany: true });
       s.note(
-        'After 5 wrong codes the code stops working. Send a new email starts again; the old link and code no longer work.'
+        'After 3 wrong codes the code stops working. Send a new email starts again; the old link and code no longer work.'
       );
       const at = s.noteSpace(80);
       notice(

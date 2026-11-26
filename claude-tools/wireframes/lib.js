@@ -329,6 +329,43 @@ export class Doc {
   }
 
   /**
+   * Adds an arrow through points given as absolute [x, y] pairs, with its head at the last point.
+   *
+   * @param {Array<[number, number]>} pts - The points, at least two.
+   * @param {object} [o] - Style, as for `base`.
+   * @returns {object} The arrow element.
+   * @example
+   * const d = new Doc('auth');
+   * d.arrow([[0, 0], [0, 40], [60, 40]]).endArrowhead;
+   * // → 'arrow'
+   */
+  arrow(pts, o = {}) {
+    const el = this.line(pts, o);
+    el.type = 'arrow';
+    el.endArrowhead = 'arrow';
+    el.elbowed = false;
+    return el;
+  }
+
+  /**
+   * Adds a diamond inside the box at (x, y), the shape flowcharts use for a question.
+   *
+   * @param {number} x - The left edge of the box.
+   * @param {number} y - The top edge of the box.
+   * @param {number} w - The width.
+   * @param {number} h - The height.
+   * @param {object} [o] - Style, as for `base`.
+   * @returns {object} The element.
+   * @example
+   * const d = new Doc('auth');
+   * d.diamond(0, 0, 200, 100).type;
+   * // → 'diamond'
+   */
+  diamond(x, y, w, h, o = {}) {
+    return this.base('diamond', x, y, w, h, o);
+  }
+
+  /**
    * Adds text, sized to fit it.
    *
    * @param {number} x - With `align` 'left' the left edge, 'center' the center, 'right' the right edge.
