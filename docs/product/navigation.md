@@ -2,7 +2,8 @@
 
 Every screen and dialog in Movie Mates, how you move between them on each client, and the web addresses and
 links that open them. The stories are in [`features/`](requirements.md#where-the-stories-are); this file
-says where each one lives. The wireframes (R3) draw these screens, and the clients build them.
+says where each one lives. The [wireframes](../design/wireframes/README.md) draw these screens, and the clients
+build them.
 
 Rules from the [decisions](requirements.md#6-decisions) that shape everything here:
 
@@ -117,7 +118,7 @@ One rule decides the kind: **can you come back to it, or is it a short task on w
 | **Full screen**      | Something you open, read and come back to (a title, a list), or a step that matters (accepting an invite, onboarding, deleting the account) | Has a web address and a Back. On the phone it slides over the tab's screen; the tab bar stays, except in sign-in, onboarding and Delete account.          |
 | **Dialog** (D W)     | A short task that returns you to the same screen: name a list, invite someone, watch the trailer                                            | Over the page, with the page dimmed behind it. Esc, **Close** and a click outside close it; focus goes back to the button that opened it. No web address. |
 | **Bottom sheet** (M) | The phone's version of a dialog or a menu                                                                                                   | Rises from the bottom; swipe down or tap outside to close. One sheet at a time, never a sheet on a sheet.                                                 |
-| **Menu** (D W)       | Actions on one thing: a poster, a connection                                                                                                | Opens next to what you clicked (right-click or the ⋯ button); arrow keys move through it, Esc closes it                                                   |
+| **Menu** (D W)       | Actions on one thing: a poster, a connection                                                                                                | Opens next to what you clicked (the ⋯ button; right-click too on desktop, where no browser menu is lost); arrow keys move through it, Esc closes it       |
 | **Confirmation**     | Only for what can't be undone: deleting a list with titles (LIST-7), ending a connection (CONN-3)                                           | A small dialog (the system's alert on the phone), naming what will be lost. Cancel is focused first.                                                      |
 | **Message**          | Saying something happened, with **Undo** for 5 seconds (LIKE-2, LIST-5, INVITE-3, MATCH-6)                                                  | At the bottom of the window, above the tab bar on the phone. It doesn't take focus, and screen readers announce it.                                       |
 | **Panel** (D W)      | The notification list                                                                                                                       | Opens beside the sidebar, over the page, without leaving it. Esc closes it.                                                                               |
@@ -125,9 +126,14 @@ One rule decides the kind: **can you come back to it, or is it a short task on w
 Everything else that can be undone uses a message with **Undo**, not a confirmation: a confirmation for an
 action people take every day trains them to click through it.
 
+Each kind is drawn once per layout in the [shell wireframes](../design/wireframes/frames.md#shell), and the
+shared states (loading, empty, errors, offline) in the [states wireframes](../design/wireframes/frames.md#states).
+
 ## 3. Navigation per client
 
 ### Desktop and web: a sidebar
+
+Wireframes: [the sidebar](../design/wireframes/png/shell--app-shell--sidebar--dw.png), [shrunk to icons](../design/wireframes/png/shell--app-shell--icons-only--dw.png).
 
 The sidebar is always visible on the left, top to bottom:
 
@@ -151,6 +157,8 @@ screen reader labels. The desktop window can't be made narrower than 960 × 600 
 menus, and the notification list as a full screen.
 
 ### Phone: bottom tabs
+
+Wireframes: [the tabs](../design/wireframes/png/shell--app-shell--tabs--m.png), [a full screen](../design/wireframes/png/shell--app-shell--full-screen--m.png), [no tabs](../design/wireframes/png/shell--app-shell--no-tabs--m.png).
 
 Five tabs, always the same, with an icon and a name:
 

@@ -141,6 +141,23 @@ with nvm). Commit from a terminal, or make Node available to the client.
 - **Comments** explain _why_, not _what_. Good names and small functions say what the code does. Comment
   non-obvious decisions, workarounds (with a link to the issue), and anything that would surprise a reader.
   Don't leave commented-out code.
+- **Every function has a JSDoc comment**: what it does, each parameter, what it returns, and an `@example`
+  with a call and the value it returns. In TypeScript the types stay in the signature and the comment
+  explains them; in JavaScript (scripts, configs) the comment carries the types too (`@param {string} name`).
+  The comment is the function's manual: someone using it shouldn't need to read its body. ESLint will
+  check it ([#174](https://github.com/orlandovallejos/movie-mates/issues/174)).
+
+  ```js
+  /**
+   * Turns a frame name into the part of a file name it gives.
+   *
+   * @param {string} text - Any text, such as "Check your email".
+   * @returns {string} Lowercase words joined by hyphens, without accents.
+   * @example
+   * slugify('Añadir a la lista'); // 'anadir-a-la-lista'
+   */
+  ```
+
 - **Tests** live next to the code as `*.test.ts(x)`. Snapshots are for stable output only; review a snapshot
   diff before committing it.
 

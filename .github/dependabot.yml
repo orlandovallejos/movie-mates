@@ -47,6 +47,18 @@ updates:
     commit-message:
       prefix: 'chore'
 
+  # The wireframe export script (Excalidraw, Playwright), outside the workspaces
+  - package-ecosystem: npm
+    directory: /scripts/wireframes
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    commit-message:
+      prefix: 'chore'
+    groups:
+      wireframes:
+        patterns: ['*']
+
   - package-ecosystem: github-actions
     directory: /
     schedule:

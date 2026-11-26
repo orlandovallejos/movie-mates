@@ -1,0 +1,17 @@
+{
+  "name": "@movie-mates/wireframes-export",
+  "private": true,
+  "description": "Exports every frame of the wireframes in docs/design/wireframes to a PNG, headless.",
+  "type": "module",
+  "scripts": {
+    "setup": "playwright install chromium-headless-shell",
+    "export": "node export.mjs"
+  },
+  "devDependencies": {
+    "@excalidraw/excalidraw": "0.18.1",
+    "esbuild": "^0.28.2",
+    "playwright": "^1.65.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

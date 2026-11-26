@@ -72,7 +72,10 @@ As someone browsing a grid, I want to like a title from its poster, so that I do
 
 - [ ] Behaves as LIKE: fills at once, undoes itself if saving fails
 - [ ] Titles already in your Likes show a filled heart wherever they appear
-- [ ] On desktop and web the heart is always visible, not only on hover, so it works by touch and keyboard
+- [ ] On desktop and web, an empty heart appears while the pointer is over the poster or the keyboard focus
+      is on it, so a grid of posters stays calm. A filled heart (already liked) always shows.
+- [ ] On touch screens, which have no hover (a tablet or a touch laptop on the web), every heart is always
+      visible. On the phone too.
 - [ ] Tapping the heart never opens the title page
 
 ### HOME-5 · A card for what to do next
