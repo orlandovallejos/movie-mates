@@ -2,7 +2,9 @@
 
 Stories for the welcome screen, signing in and out, deleting your account, and the first minutes in the app.
 Conventions (IDs, fields, the **Privacy:** line) are in the [requirements](../requirements.md#3-conventions).
-The [sign-in wireframes](../../design/wireframes/frames.md#auth) draw these screens on each client.
+The [sign-in wireframes](../../design/wireframes/frames.md#auth) draw these screens on each client, and the
+[sign-in flow](../../design/wireframes/png/auth--sign-in-flow--dwm.png) shows every path through them in one
+chart.
 
 The rules behind these stories, from the [decisions](../requirements.md#6-decisions):
 
@@ -70,6 +72,10 @@ Wireframes: [desktop and web](../../design/wireframes/png/auth--enter-your-email
       spinner.
 - [ ] A likely typo in a common domain shows a suggestion under the field: "Did you mean name@gmail.com?",
       which fills it in when tapped. It never blocks sending.
+- [ ] How it finds typos: the app compares only the part after the @ with a short list of common domains kept
+      in the app (gmail.com, outlook.com, hotmail.com, yahoo.com, icloud.com, …) and suggests one that is a
+      letter or two off, such as gmial.com or gmail.con. The name before the @ is never checked or changed.
+      No service is called, so nothing typed leaves the device before **Send link**.
 - [ ] **Back** returns to the welcome screen and keeps what was typed
 - [ ] **Privacy:** the next screen is the same whether or not an account exists for that email. The app never
       says "no account found".
@@ -124,7 +130,7 @@ Wireframes: [wrong code](../../design/wireframes/png/auth--check-your-email--wro
 - [ ] A wrong code says "That code doesn't match. Check the latest email." The code stays in the field,
       selected, so it can be compared with the email (a swapped digit is the usual mistake) and typed over.
       Screen readers announce the message.
-- [ ] After 5 wrong codes, the code stops working and the screen asks you to send a new email
+- [ ] After 3 wrong codes, the code stops working and the screen asks you to send a new email
 - [ ] The code expires with the link (15 minutes) and works once
 - [ ] Only the newest email's link and code work. Sending a new email cancels the old ones.
 

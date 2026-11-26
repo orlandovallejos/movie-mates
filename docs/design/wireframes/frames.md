@@ -7,6 +7,12 @@ edit and export the wireframes: [README](README.md).
 
 From [`auth.excalidraw`](auth.excalidraw).
 
+### Sign-in flow · D W M
+
+Stories: AUTH-1, AUTH-2, AUTH-3, AUTH-4, AUTH-5, AUTH-6, AUTH-7, AUTH-8, AUTH-9, AUTH-10, AUTH-11, AUTH-12
+
+![Sign-in flow · D W M](png/auth--sign-in-flow--dwm.png)
+
 ### Welcome · D W
 
 Stories: AUTH-1

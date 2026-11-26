@@ -188,15 +188,15 @@ Testing covers the oldest and the newest supported version of each system.
 
 | ID    | Requirement                                                                                                                                                                                                                                                                           |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SEC-1 | **Sign-in link and code:** the link works once and lives 15 minutes; the 6-digit code expires with it; after 5 wrong codes it stops working; at most 5 emails per address per hour, the next one 30 seconds after the last; only the newest email works (AUTH-3 to AUTH-5)            |
+| SEC-1 | **Sign-in link and code:** the link works once and lives 15 minutes; the 6-digit code expires with it; after 3 wrong codes it stops working; at most 5 emails per address per hour, the next one 30 seconds after the last; only the newest email works (AUTH-3 to AUTH-5)            |
 | SEC-2 | **Sessions:** you stay signed in until you sign out or don't use the app for 90 days; each use restarts the 90 days (AUTH-12). Tokens live in the system's secure storage (Keychain, Windows Credential Manager, the Android Keystore), and on the web in a secure, HTTP-only cookie. |
 | SEC-3 | **Rate limit:** the server answers one client at most 20 requests a second ([decision 16](requirements.md#6-decisions), P6). Over it, the answer is HTTP 429 with how long to wait; the apps wait and retry by themselves, up to 3 times, then show the failure as LIKE-3.            |
 | SEC-4 | Invite codes and IDs in addresses carry at least 96 bits of randomness, so they can't be guessed or counted                                                                                                                                                                           |
 | SEC-5 | Every connection uses HTTPS (TLS 1.2 or later); the web app sends HSTS; the desktop app follows Electron's security checklist (context isolation, sandboxed renderers, no Node.js in pages)                                                                                           |
 | SEC-6 | Deleting the account (AUTH-14) needs a fresh code or sign-in, is immediate, and signs out every device                                                                                                                                                                                |
 
-The numbers in SEC-1 make guessing useless: with 5 tries per email and 5 emails an hour, the odds of guessing a
-6-digit code are about 25 in a million per hour. How the M7 backend counts and stores these limits goes in its
+The numbers in SEC-1 make guessing useless: with 3 tries per email and 5 emails an hour, the odds of guessing a
+6-digit code are about 15 in a million per hour. How the M7 backend counts and stores these limits goes in its
 auth ADR.
 
 **TMDB's own limit.** TMDB answers about 40 requests a second, counted per IP address, and says the number
