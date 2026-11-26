@@ -61,6 +61,8 @@ packages/
   core/           types and pure logic shared by every client: date, math and image helpers, TMDB transforms
   config/         shared Prettier, TypeScript and ESLint settings
 docs/             roadmap, product requirements (docs/product), ADRs, design (docs/design), security notes
+scripts/          tools people run, such as the wireframe PNG export
+claude-tools/     tools Claude runs and maintains, not edited by hand (claude-tools/README.md)
 ```
 
 The web client, the mobile app and the backend will be added next to these (see the

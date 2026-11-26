@@ -36,10 +36,10 @@ export default [
 
   ...tests(['**/*.test.{ts,tsx}', 'apps/desktop/src/setupTests.ts']),
 
-  // Scripts outside the workspaces run in Node, or in headless Chromium (scripts/wireframes/page.js), so
-  // the browser support list doesn't apply, and they report progress on the console.
+  // Scripts outside the workspaces, and Claude's tools (claude-tools/README.md), run in Node or in
+  // headless Chromium, so the browser support list doesn't apply, and they report progress on the console.
   {
-    files: ['scripts/**/*.{js,mjs}'],
+    files: ['scripts/**/*.{js,mjs}', 'claude-tools/**/*.{js,mjs}'],
     rules: {
       'compat/compat': 'off',
       'no-console': 'off',
