@@ -1,6 +1,6 @@
 {
   "$comment": "Fingerprints of the wireframe files as Claude last drafted them. Written by run.mjs; don't edit. See claude-tools/README.md.",
-  "auth.excalidraw": "b5acd03778b8c0a8822e66c20c47771fa6a505d152f9f6cbfe8bdce034137ce6",
+  "auth.excalidraw": "50cb910eeb5452e9eb5fa5cd0ed97408306f42fd00d8834d66a0350b5c5962a5",
   "kit.excalidraw": "56ca9ad3522e40c1d3edbefbd5fd86ba7cf312146ebdbe5b9efa0d47d8590a9d",
   "kit.excalidrawlib": "efae8ff09d14d0a0abf8e71457e8218a1d7efdb83e5264ba3301cbd8e58356a2",
   "shell.excalidraw": "7c8634f151b15ee5b7745fcce06ed442b5d62f47f21612f7f2d8f3a5f9321cb6",

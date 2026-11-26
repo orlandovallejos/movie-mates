@@ -1,14 +1,16 @@
 // Claude tool: Claude runs and changes this file; people don't edit it by hand. See claude-tools/README.md.
 //
 // auth.excalidraw: signing in (#156). The welcome screen, email sign-in with the link and the code, the
-// pages the link opens, and Google and Apple, each with its loading and error states. Onboarding and the
-// invite path follow in the same file.
-import { C, Doc, measure } from './lib';
+// pages the link opens, and Google and Apple, each with its loading and error states. Then onboarding, and
+// arriving from an invite: accept or decline, and the invites that can't be used.
+import { C, Doc, measure, pick } from './lib';
 import * as ui from './ui';
 import { Board, phoneApp } from './frames';
 
 const EMAIL = 'alex@gmail.com';
 const COL = 400;
+/** The phone keyboard's height, from its top edge to the bottom of the screen. */
+const KEYBOARD_H = 291;
 const TERMS =
   "By continuing, you agree to the Terms and the Privacy Policy, and confirm you're 13 or older.";
 
@@ -122,8 +124,8 @@ function codeField(d, x, y, w, o = {}) {
  * Draws the phone's keyboard at the bottom of the screen, so the frames show what stays above it.
  *
  * @param {object} s - The phone screen, from `Board.frame`.
- * @param {object} [o] - `kind`: 'email' (letters with @ and .) or 'code' (the number pad);
- *   `suggestion`: the line above the keys, such as the code from Mail.
+ * @param {object} [o] - `kind`: 'email' (letters with @ and .), 'search' (letters, with a Search key) or
+ *   'code' (the number pad); `suggestion`: the line above the keys, such as the code from Mail.
  * @returns {number} The y of the keyboard's top edge, where content must end.
  * @example
  * keyboard(s, { kind: 'code', suggestion: 'From Mail: 482913' });
@@ -131,7 +133,7 @@ function codeField(d, x, y, w, o = {}) {
  */
 function keyboard(s, o = {}) {
   const { d } = s;
-  const h = 291;
+  const h = KEYBOARD_H;
   const top = s.bottom - h;
   ui.panel(d, s.x, top, s.w, h, 0, 48, { fill: C.mid, stroke: C.mid });
   let y = top + 8;
@@ -159,7 +161,13 @@ function keyboard(s, o = {}) {
   d.text(
     s.x + 10,
     top + h - 30,
-    o.kind === 'code' ? 'Keyboard: numbers' : 'Keyboard: email (@ .)',
+    pick(
+      [
+        [o.kind === 'code', 'Keyboard: numbers'],
+        [o.kind === 'search', 'Keyboard: letters, with Search'],
+      ],
+      'Keyboard: email (@ .)'
+    ),
     { size: 11, color: C.dim }
   );
   ui.homeIndicator(d, s.x, s.bottom, s.w);
@@ -310,11 +318,11 @@ function welcomeM(s, o = {}) {
       notice(d, a.x + 16, y, a.w - 32, o.notice, { icon: o.noticeIcon }) + 16;
   }
   if (o.invitedBy) {
-    ui.avatar(d, a.x + 36, y + 20, 40, o.invitedBy[0]);
-    d.text(a.x + 64, y + 8, `${o.invitedBy} invited you\nto Movie Mates`, {
-      size: 16,
-    });
-    y += 56;
+    const line = `${o.invitedBy} invited you to Movie Mates`;
+    const left = cx - (40 + 10 + measure(line, 16).w) / 2;
+    ui.avatar(d, left + 20, y + 20, 40, o.invitedBy[0]);
+    d.textMid(left + 50, y + 20, line, { size: 16 });
+    y += 60;
   }
   d.text(cx, y, 'Find what you both\nwant to watch.', {
     size: 26,
@@ -598,14 +606,543 @@ function linkPage(s, o) {
   }
 }
 
+// --- Onboarding and invites ------------------------------------------------------------------------
+
+/** The titles step 3 shows, movies and TV shows mixed, each with its type (ONBOARD-3). */
+const TITLES = [
+  ['Dune: Part Two', 'Movie · 2024'],
+  ['The Bear', 'TV show · 2022'],
+  ['Past Lives', 'Movie · 2023'],
+  ['Severance', 'TV show · 2022'],
+  ['Arrival', 'Movie · 2016'],
+  ['Shōgun', 'TV show · 2024'],
+  ['Lady Bird', 'Movie · 2017'],
+  ['Fleabag', 'TV show · 2016'],
+  ['Perfect Days', 'Movie · 2023'],
+  ['Andor', 'TV show · 2022'],
+  ['Aftersun', 'Movie · 2022'],
+  ['Slow Horses', 'TV show · 2022'],
+  ['Spirited Away', 'Movie · 2001'],
+  ['Arcane', 'TV show · 2021'],
+];
+
+/** What a search for "sev" finds in step 3 (ONBOARD-4). */
+const RESULTS = [
+  ['Severance', 'TV show · 2022'],
+  ['Se7en', 'Movie · 1995'],
+  ['Seven Samurai', 'Movie · 1954'],
+  ['The Seventh Seal', 'Movie · 1957'],
+  ['Seven Seconds', 'TV show · 2018'],
+  ['Seven Psychopaths', 'Movie · 2012'],
+  ['Seven Pounds', 'Movie · 2008'],
+];
+
+/** The genre chips of step 2, part of the app rather than loaded from TMDB (ONBOARD-2). */
+const GENRES = [
+  'Action and Adventure',
+  'Animation',
+  'Comedy',
+  'Crime',
+  'Documentary',
+  'Drama',
+  'Family and Kids',
+  'Horror',
+  'Music',
+  'Mystery and Thriller',
+  'Reality',
+  'Romance',
+  'Sci-Fi and Fantasy',
+  'War and History',
+  'Western',
+];
+const PICKED = ['Comedy', 'Drama', 'Sci-Fi and Fantasy'];
+const INVITE_LINK = 'movie-mates…/invite/7Kp2xQ9m';
+const OFFLINE = "You're offline. The Likes you've made are saved.";
+
 /**
- * Draws auth.excalidraw: the sign-in frames on desktop and web, and on the phone.
+ * Draws the row of step dots and "Step 2 of 4" under it: done steps filled, the current one long.
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} cx - The center, across.
+ * @param {number} y - The top edge.
+ * @param {number} n - How many steps (4, or 3 after accepting an invite).
+ * @param {number} at - The current step, from 0.
+ * @returns {number} The height it takes, 34.
+ * @example
+ * stepDots(d, 656, 60, 4, 1);
+ * // → 34 (one dark dot, a long one, then two empty ones)
+ */
+function stepDots(d, cx, y, n, at) {
+  const dot = 10;
+  const long = 26;
+  const gap = 10;
+  let x = cx - (long + (n - 1) * dot + (n - 1) * gap) / 2;
+  for (let i = 0; i < n; i += 1) {
+    if (i === at) {
+      d.rect(x, y, long, dot, { r: 5, fill: C.ink, stroke: C.ink, rough: 0 });
+      x += long + gap;
+    } else {
+      d.circle(x + dot / 2, y + dot / 2, dot, {
+        fill: i < at ? C.dim : C.white,
+        stroke: i < at ? C.dim : C.line,
+        rough: 0,
+      });
+      x += dot + gap;
+    }
+  }
+  d.text(cx, y + 16, `Step ${at + 1} of ${n}`, {
+    size: 12,
+    color: C.muted,
+    align: 'center',
+  });
+  return 34;
+}
+
+/**
+ * Starts an onboarding step on desktop and web: full screen, the step dots at the top, Back from step 2.
+ *
+ * @param {object} s - The desktop screen, from `Board.frame`.
+ * @param {object} [o] - `step` (from 0; none for the invite screens), `steps` (4), `w` (the column's width,
+ *   400), `offline` (the banner first), `back` (true from step 2).
+ * @returns {{ x: number, y: number, w: number, cx: number }} The centered column, and the y to start at.
+ * @example
+ * // in the first desktop frame
+ * onboardDW(s, { step: 2, w: 976 });
+ * // → { x: 168, y: 132, w: 976, cx: 656 }
+ */
+function onboardDW(s, o = {}) {
+  const { d } = s;
+  let y = s.top;
+  if (o.offline) y += ui.offlineBanner(d, s.x, y, s.w, { text: OFFLINE });
+  if (o.back ?? o.step > 0) {
+    ui.button(d, s.x + 24, y + 20, 'Back', { variant: 'ghost', icon: 'back' });
+  }
+  const cx = s.x + s.w / 2;
+  if (o.step !== undefined) stepDots(d, cx, y + 28, o.steps ?? 4, o.step);
+  const w = o.w ?? COL;
+  return { x: cx - w / 2, y: y + 92, w, cx };
+}
+
+/**
+ * Starts an onboarding step on the phone: Back in the header and the step dots in its middle.
+ *
+ * @param {object} s - The phone screen, from `Board.frame`.
+ * @param {object} [o] - As for `onboardDW`, without `w`.
+ * @returns {{ x: number, y: number, w: number, cx: number }} The content area, with 16 px margins.
+ * @example
+ * // in the first phone frame
+ * onboardM(s, { step: 0 });
+ * // → { x: 32, y: 130, w: 358, cx: 211 }
+ */
+function onboardM(s, o = {}) {
+  const { d } = s;
+  const a = phoneApp(s, { tabs: false });
+  let { y } = a;
+  const h = ui.phoneHeader(d, a.x, y, a.w, {
+    back: (o.back ?? o.step > 0) ? 'Back' : false,
+  });
+  if (o.step !== undefined)
+    stepDots(d, a.x + a.w / 2, y + 6, o.steps ?? 4, o.step);
+  y += h;
+  if (o.offline) y += ui.offlineBanner(d, a.x, y, a.w, { text: OFFLINE });
+  return { x: a.x + 16, y: y + 16, w: a.w - 32, cx: a.x + a.w / 2 };
+}
+
+/**
+ * Draws step 3's progress line, "1 movie ✓ · 1 TV show", with the part still missing highlighted.
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} cy - The center, down.
+ * @param {{ movies: number, tv: number }} o - How many of each are liked.
+ * @returns {void}
+ * @example
+ * progressLine(d, 168, 776, { movies: 2, tv: 0 });
+ * // draws "2 movies ✓ · [1 TV show]"
+ */
+function progressLine(d, x, cy, o) {
+  let px = x;
+  [
+    [o.movies, 'movie', 'movies'],
+    [o.tv, 'TV show', 'TV shows'],
+  ].forEach(([n, one, many], i) => {
+    if (i) {
+      px += d.textMid(px, cy, '·', { size: 15, color: C.muted }).width + 10;
+    }
+    if (n) {
+      px += d.textMid(px, cy, `${n} ${n === 1 ? one : many}`, {
+        size: 15,
+      }).width;
+      ui.icon(d, 'check', px + 12, cy, 14);
+      px += 32;
+    } else {
+      const label = `1 ${one}`;
+      const w = measure(label, 15).w + 24;
+      d.rect(px, cy - 15, w, 30, { r: 15, fill: C.mid, stroke: C.ink });
+      d.textMid(px + 12, cy, label, { size: 15 });
+      px += w + 10;
+    }
+  });
+}
+
+/**
+ * Draws the phone's bottom bar of an onboarding step: a line on top, an optional progress line, and full
+ * width buttons within thumb reach.
+ *
+ * @param {object} s - The phone screen, from `Board.frame`.
+ * @param {object} [o] - `buttons` ([label, button options] pairs, top to bottom), `progress` (as for
+ *   `progressLine`), `bottom` (where it ends: above the home indicator, or the keyboard's top edge).
+ * @returns {number} The y of its top edge: the content scrolls under it. It's drawn when the frame
+ *   ends (`s.later`), on top of the content.
+ * @example
+ * footerM(s, { buttons: [['Continue', { variant: 'primary' }]] });
+ * // → 756 in the first phone frame
+ */
+function footerM(s, o = {}) {
+  const { d } = s;
+  const buttons = o.buttons ?? [];
+  const bottom = o.bottom ?? s.bottom - 34;
+  const top = bottom - (16 + (o.progress ? 36 : 0) + buttons.length * 56);
+  // drawn last, over the content that scrolls under it
+  s.later.push(() => {
+    d.rect(s.x, top, s.w, bottom - top, {
+      fill: C.white,
+      stroke: C.white,
+      rough: 0,
+    });
+    d.line(
+      [
+        [s.x, top],
+        [s.x + s.w, top],
+      ],
+      { stroke: C.line }
+    );
+    let y = top + 12;
+    if (o.progress) {
+      progressLine(d, s.x + 16, y + 14, o.progress);
+      y += 36;
+    }
+    buttons.forEach(([label, bo]) => {
+      ui.button(d, s.x + 16, y, label, { w: s.w - 32, size: 'lg', ...bo });
+      y += 56;
+    });
+  });
+  return top;
+}
+
+/**
+ * Draws the bar at the bottom of step 3 on desktop and web: the progress line on the left, Continue on
+ * the right, both lined up with the grid.
+ *
+ * @param {object} s - The desktop screen, from `Board.frame`.
+ * @param {{ x: number, w: number }} c - The column, from `onboardDW`.
+ * @param {object} o - `progress` (as for `progressLine`), `button` (its label) and `disabled`.
+ * @returns {number} The y of its top edge: the grid scrolls under it. It's drawn when the frame ends
+ *   (`s.later`), on top of the grid.
+ * @example
+ * footerDW(s, c, { progress: { movies: 1, tv: 0 }, button: 'Continue', disabled: true });
+ * // → 736 in the first desktop frame
+ */
+function footerDW(s, c, o) {
+  const { d } = s;
+  const top = s.bottom - 80;
+  // drawn last, over the grid that scrolls under it
+  s.later.push(() => {
+    d.rect(s.x + 1, top, s.w - 2, 79, {
+      fill: C.white,
+      stroke: C.white,
+      rough: 0,
+    });
+    d.line(
+      [
+        [s.x, top],
+        [s.x + s.w, top],
+      ],
+      { stroke: C.line }
+    );
+    if (o.progress) progressLine(d, c.x, top + 40, o.progress);
+    const w = Math.max(160, measure(o.button, 16).w + 48);
+    ui.button(d, c.x + c.w - w, top + 16, o.button, {
+      variant: 'primary',
+      size: 'lg',
+      w,
+      disabled: o.disabled,
+    });
+  });
+  return top;
+}
+
+/**
+ * Draws a grid of title posters with their type (Movie or TV show) and the heart always showing, as in
+ * step 3 of onboarding.
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} w - The width to fill.
+ * @param {object} o - `cols`, `gap` (16), `items` (TITLES), `liked` (indexes with a filled heart),
+ *   `disabled` (the other hearts dashed), `maxY` (rows that start less than 40 px above it are left out;
+ *   the others may run under a bar drawn later), `textSize`.
+ * @returns {number} The height it takes.
+ * @example
+ * likesGrid(d, 168, 300, 976, { cols: 7, liked: [0, 2], maxY: 720 });
+ * // → 489.5 (two rows of 7; the second runs under the bar)
+ */
+function likesGrid(d, x, y, w, o) {
+  const gap = o.gap ?? 16;
+  const pw = Math.floor((w - gap * (o.cols - 1)) / o.cols);
+  const ph = Math.round(pw * 1.5);
+  let h = 0;
+  (o.items ?? TITLES).forEach(([title, year], i) => {
+    const py = y + Math.floor(i / o.cols) * (ph + 48 + gap);
+    if (o.maxY && py + 40 > o.maxY) return;
+    const heart = pick(
+      [
+        [(o.liked ?? []).includes(i), 'filled'],
+        [o.disabled, 'disabled'],
+      ],
+      'empty'
+    );
+    h =
+      py -
+      y +
+      ui.poster(d, x + (i % o.cols) * (pw + gap), py, pw, {
+        title,
+        year,
+        heart,
+        textSize: o.textSize,
+      });
+  });
+  return h;
+}
+
+/**
+ * Draws the genre chips of step 2, wrapping to new rows, with the picked ones pressed.
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} maxW - Where rows wrap.
+ * @param {object} [o] - `size` (15), `h` (40, a touch target).
+ * @returns {number} The height it takes.
+ * @example
+ * genreChips(d, 376, 260, 560);
+ * // → 248 (5 rows)
+ */
+function genreChips(d, x, y, maxW, o = {}) {
+  const h = o.h ?? 40;
+  let cx = x;
+  let cy = y;
+  GENRES.forEach((label) => {
+    const w =
+      measure(label, o.size ?? 15).w + 28 + (PICKED.includes(label) ? 18 : 0);
+    if (cx > x && cx + w > x + maxW) {
+      cx = x;
+      cy += h + 12;
+    }
+    cx +=
+      ui.chip(d, cx, cy, label, {
+        on: PICKED.includes(label),
+        size: o.size ?? 15,
+        h,
+      }).w + 10;
+  });
+  return cy + h - y;
+}
+
+/**
+ * Draws a QR code placeholder: the three corner squares and a fixed pattern of dots.
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} size - The width and height.
+ * @returns {void}
+ * @example
+ * qrCode(d, 101, 400, 220);
+ * // adds a 21 × 21 module code; the dots are the same on every run
+ */
+function qrCode(d, x, y, size) {
+  const n = 21;
+  const m = size / n;
+  d.rect(x - 12, y - 12, size + 24, size + 24, {
+    r: 8,
+    fill: C.white,
+    stroke: C.line,
+  });
+  [
+    [0, 0],
+    [n - 7, 0],
+    [0, n - 7],
+  ].forEach(([i, j]) => {
+    d.rect(x + i * m, y + j * m, 7 * m, 7 * m, {
+      fill: C.white,
+      stroke: C.ink,
+      sw: m,
+      rough: 0,
+    });
+    d.rect(x + (i + 2) * m, y + (j + 2) * m, 3 * m, 3 * m, {
+      fill: C.ink,
+      stroke: C.ink,
+      rough: 0,
+    });
+  });
+  for (let i = 0; i < n; i += 1) {
+    for (let j = 0; j < n; j += 1) {
+      const finder = (i < 8 || i > n - 9) && (j < 8 || (i < 8 && j > n - 9));
+      // a fixed scatter of dots: the same on every run, with no stripes
+      const v = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453;
+      if (!finder && v - Math.floor(v) < 0.45) {
+        d.rect(x + i * m, y + j * m, m, m, {
+          fill: C.ink,
+          stroke: C.ink,
+          rough: 0,
+        });
+      }
+    }
+  }
+}
+
+/**
+ * Draws the invite link once it's made: the link in a box with Copy link, and when it stops working
+ * (INVITE-1).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {{ x: number, y: number, w: number }} c - The column; the box starts at `c.y`.
+ * @returns {number} The y under it.
+ * @example
+ * inviteLink(d, { x: 456, y: 300, w: 400 });
+ * // → 388
+ */
+function inviteLink(d, c) {
+  d.rect(c.x, c.y, c.w, 52, { r: 8, fill: C.fill, stroke: C.line });
+  d.textMid(c.x + 14, c.y + 26, INVITE_LINK, { size: 15 });
+  ui.button(d, c.x + c.w - 112, c.y + 8, 'Copy link', {
+    variant: 'primary',
+    w: 104,
+  });
+  d.text(
+    c.x,
+    c.y + 62,
+    'Works once, until Nov 17. Only your name and photo show.',
+    {
+      size: 13,
+      color: C.muted,
+      wrap: c.w,
+    }
+  );
+  return c.y + 88;
+}
+
+/**
+ * Draws the accept or decline screen's middle: Sam's photo and name, what accepting means, and the two
+ * buttons, equal in size and weight (INVITE-4).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {{ x: number, y: number, w: number, cx: number }} c - The column.
+ * @param {object} [o] - `phone` (smaller text).
+ * @returns {number} The y under it.
+ * @example
+ * acceptInvite(d, { x: 456, y: 180, w: 400, cx: 656 });
+ */
+function acceptInvite(d, c, o = {}) {
+  let { y } = c;
+  ui.avatar(d, c.cx, y + 44, 88, 'S');
+  y += 112;
+  const t = d.text(c.cx, y, 'Sam wants to find things to watch with you', {
+    size: o.phone ? 24 : 28,
+    align: 'center',
+    wrap: c.w,
+  });
+  y += t.height + 16;
+  const b = d.text(
+    c.cx,
+    y,
+    "You'll both see the titles you both like. Neither of you sees the rest of the other's Likes.",
+    { size: 15, color: C.text, align: 'center', wrap: c.w }
+  );
+  y += b.height + 16;
+  const cue = 'Your Likes stay private';
+  ui.privateCue(d, c.cx - (measure(cue, 13).w + 20) / 2, y, cue);
+  y += 44;
+  const bw = (c.w - 12) / 2;
+  ['Accept', 'Decline'].forEach((label, i) =>
+    ui.button(d, c.x + i * (bw + 12), y, label, { w: bw, size: 'lg' })
+  );
+  y += 64;
+  d.text(c.cx, y, 'Works once, until Nov 17.', {
+    size: 13,
+    color: C.muted,
+    align: 'center',
+  });
+  return y + 24;
+}
+
+/**
+ * Draws a screen for an invite that can't be used: what happened, and a way forward (INVITE-5).
+ *
+ * @param {object} s - The screen, from `Board.frame`.
+ * @param {object} o - `title`, `body`, `buttons` ([label, button options] pairs), `phone`.
+ * @returns {void}
+ * @example
+ * inviteProblem(s, { title: 'This invite has expired', body: 'Ask for a new one.', buttons: [['Continue', { variant: 'primary' }]] });
+ */
+function inviteProblem(s, o) {
+  const { d } = s;
+  const c = o.phone
+    ? screenM(s, { back: false })
+    : screenDW(s, { back: false });
+  let y = heading(d, c, o.title, o.body, { size: o.phone ? 26 : 28 });
+  o.buttons.forEach(([label, bo]) => {
+    ui.button(d, c.x, y, label, { w: c.w, size: 'lg', ...bo });
+    y += 60;
+  });
+}
+
+/**
+ * Draws step 1 of onboarding in a column: what Likes are, and the name field (ONBOARD-1).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {{ x: number, y: number, w: number, cx: number }} c - The column.
+ * @param {object} [o] - `name` (filled in from Google or Apple), `phone` (a shorter animation).
+ * @returns {number} The y under the field.
+ * @example
+ * nameStep(d, { x: 456, y: 132, w: 400, cx: 656 });
+ */
+function nameStep(d, c, o = {}) {
+  const ah = o.phone ? 120 : 150;
+  ui.animation(d, c.cx - 140, c.y, 280, ah, 'Animation: a heart fills');
+  const y = heading(
+    d,
+    { ...c, y: c.y + ah + 24 },
+    "Like anything you'd want to watch",
+    "Nobody sees your Likes, not even the people you connect with. When you both like the same title, it's a match.",
+    { size: o.phone ? 24 : 28 }
+  );
+  return (
+    y +
+    ui.field(d, c.x, y, c.w, {
+      label: 'What should your connections call you?',
+      value: o.name,
+      placeholder: o.name ? undefined : 'Your name',
+      hint: o.name
+        ? 'From your Google account. Invites show this name.'
+        : 'Invites show this name.',
+      h: 48,
+      size: 16,
+    })
+  );
+}
+
+/**
+ * Draws auth.excalidraw: signing in, onboarding and arriving from an invite, on desktop and web, and on
+ * the phone.
  *
  * @returns {import('./lib').Doc} The drawing.
  * @example
  * const d = buildAuth();
  * d.elements.filter((e) => e.type === 'frame').length;
- * // → 24
+ * // → 53
  */
 export default function buildAuth() {
   const d = new Doc('auth');
@@ -959,6 +1496,615 @@ export default function buildAuth() {
       "On the web, Google's page opens and returns to the page you were trying to reach."
     );
   });
+
+  // Onboarding -----------------------------------------------------------------------------------------
+  B.heading(
+    'Onboarding',
+    'Full screen, on the first sign-in only. Four steps; the aim is to leave with Likes.'
+  );
+  B.frame('Onboarding · name · D W · ONBOARD-1', 'desktop', (s) => {
+    const c = onboardDW(s, { step: 0 });
+    const y = nameStep(d, c);
+    ui.button(d, c.x, y + 28, 'Get started', {
+      variant: 'primary',
+      w: c.w,
+      size: 'lg',
+      disabled: true,
+    });
+    s.note(
+      'Email sign-up: the name is empty, and Get started is enabled once there is one (PROFILE-2). No Skip: it is one step.'
+    );
+    s.note(
+      "No Back on step 1: there's nowhere to go back to once signed in. Closing the app keeps your place; the next sign-in opens the first unfinished step (ONBOARD-7)."
+    );
+    s.note(
+      'Every step shows the dots and "Step 1 of 4" as text, so the count is read out too.'
+    );
+  });
+  B.frame('Onboarding · name · M · ONBOARD-1', 'phone', (s) => {
+    const c = onboardM(s, { step: 0 });
+    nameStep(d, c, { name: 'Alex', phone: true });
+    footerM(s, { buttons: [['Get started', { variant: 'primary' }]] });
+    s.note(
+      'Signed in with Google: the name is filled in from the account and can be changed. Apple works the same when it gives a name.'
+    );
+    s.note(
+      "On the phone the step's button sits at the bottom, within thumb reach, on every step."
+    );
+  });
+  B.frame('Onboarding · genres · D W · ONBOARD-2', 'desktop', (s) => {
+    const c = onboardDW(s, { step: 1, w: 560 });
+    let y = heading(
+      d,
+      c,
+      'What do you like to watch?',
+      'Pick a few. The titles in the next step, and the rows on Home, come from them.'
+    );
+    y += genreChips(d, c.x, y, c.w) + 32;
+    ui.button(d, c.x, y, 'Continue', {
+      variant: 'primary',
+      w: c.w,
+      size: 'lg',
+    });
+    ui.button(d, c.cx, y + 60, 'Skip', { variant: 'ghost', center: true });
+    s.note(
+      'Each genre covers movies and TV together. Picked chips are filled with a check, and screen readers hear "selected" (ONBOARD-2).'
+    );
+    s.note(
+      'Continue once one is picked. Skip goes on with trending titles. The list is part of the app, so this step works when TMDB is down (ONBOARD-9).'
+    );
+    s.note('Settings can change the picks later (PROFILE).');
+  });
+  B.frame('Onboarding · genres · M · ONBOARD-2', 'phone', (s) => {
+    const c = onboardM(s, { step: 1 });
+    const y = heading(
+      d,
+      c,
+      'What do you like to watch?',
+      'Pick a few. The next titles come from them.',
+      { size: 24 }
+    );
+    genreChips(d, c.x, y, c.w, { size: 14 });
+    footerM(s, {
+      buttons: [
+        ['Continue', { variant: 'primary' }],
+        ['Skip', { variant: 'ghost' }],
+      ],
+    });
+    s.note('The chips wrap; the list scrolls under the bar if it needs to.');
+  });
+  B.frame(
+    'Onboarding · first Likes · D W · ONBOARD-3 ONBOARD-4',
+    'desktop',
+    (s) => {
+      const c = onboardDW(s, { step: 2, w: 976 });
+      let y = heading(
+        d,
+        c,
+        'Like a few titles you know',
+        'At least one movie and one TV show, so you can start matching.'
+      );
+      y -= 8;
+      ui.field(d, c.x, y, 400, {
+        placeholder: 'Search for a title',
+        icon: 'search',
+      });
+      y += 56;
+      const top = footerDW(s, c, {
+        progress: { movies: 2, tv: 0 },
+        button: 'Continue',
+        disabled: true,
+      });
+      likesGrid(d, c.x, y, c.w, { cols: 7, liked: [0, 2], maxY: top });
+      s.note(
+        'Popular titles from the picked genres, movies and TV mixed, each with its type. The heart always shows here, not only on hover, and the poster opens nothing: this step is about the heart (ONBOARD-3).'
+      );
+      s.note(
+        'The bar stays at the bottom while the grid scrolls. The missing part is highlighted, and Continue waits for it. Show more is under the grid; liked titles stay at the top.'
+      );
+      s.note(
+        'Every Like is saved as it is made. If saving fails, the heart empties again with a message, and it does not count (States table).'
+      );
+    }
+  );
+  B.frame('Onboarding · first Likes · M · ONBOARD-3', 'phone', (s) => {
+    const c = onboardM(s, { step: 2 });
+    let y = heading(
+      d,
+      c,
+      'Like a few titles you know',
+      'At least one movie and one TV show.',
+      { size: 24 }
+    );
+    y -= 8;
+    ui.field(d, c.x, y, c.w, {
+      placeholder: 'Search for a title',
+      icon: 'search',
+    });
+    y += 56;
+    const top = footerM(s, {
+      progress: { movies: 1, tv: 0 },
+      buttons: [['Continue', { variant: 'primary', disabled: true }]],
+    });
+    likesGrid(d, c.x, y, c.w, {
+      cols: 3,
+      gap: 12,
+      liked: [0],
+      maxY: top,
+      textSize: 12,
+    });
+    s.note('Three columns, scrolling down; no rows that scroll sideways.');
+    const at = s.noteSpace(60);
+    ui.message(d, at.x + s.noteW / 2, at.y, "Couldn't save that Like.", {
+      action: 'Try again',
+      maxW: s.noteW,
+    });
+    s.note(
+      'If a Like fails to save, the heart empties again and this message shows; it does not count toward the progress line.'
+    );
+  });
+  B.frame('Onboarding · search · D W · ONBOARD-4', 'desktop', (s) => {
+    const c = onboardDW(s, { step: 2, w: 976 });
+    let y = heading(
+      d,
+      c,
+      'Like a few titles you know',
+      'At least one movie and one TV show, so you can start matching.'
+    );
+    y -= 8;
+    ui.field(d, c.x, y, 400, {
+      value: 'sev',
+      icon: 'search',
+      shortcut: 'Clear',
+    });
+    y += 56;
+    const top = footerDW(s, c, {
+      progress: { movies: 2, tv: 1 },
+      button: 'Continue',
+    });
+    likesGrid(d, c.x, y, c.w, {
+      cols: 7,
+      items: RESULTS,
+      liked: [0],
+      maxY: top,
+    });
+    s.note(
+      'The same search as SEARCH, titles only (no people). Liking a result counts toward the line: Severance was the missing TV show, so Continue is on (ONBOARD-4).'
+    );
+    s.note('Clear goes back to the grid, with the new Likes at the top.');
+  });
+  B.frame('Onboarding · search · M · ONBOARD-4', 'phone', (s) => {
+    const c = onboardM(s, { step: 2 });
+    // the keyboard goes on top of the results that scroll under it, after the bar
+    const kb = s.bottom - KEYBOARD_H;
+    ui.field(d, c.x, c.y, c.w, {
+      value: 'sev',
+      icon: 'search',
+      shortcut: 'Clear',
+    });
+    const top = footerM(s, {
+      progress: { movies: 1, tv: 1 },
+      buttons: [['Continue', { variant: 'primary' }]],
+      bottom: kb,
+    });
+    s.later.push(() => keyboard(s, { kind: 'search' }));
+    likesGrid(d, c.x, c.y + 56, c.w, {
+      cols: 3,
+      gap: 12,
+      items: RESULTS,
+      liked: [0],
+      maxY: top,
+      textSize: 12,
+    });
+    s.note(
+      'Typing scrolls the heading away, so the field, a row of results and the bar fit above the keyboard. Pressing Search closes the keyboard and shows more.'
+    );
+  });
+  B.frame('Onboarding · titles down · D W · ONBOARD-9', 'desktop', (s) => {
+    const c = onboardDW(s, { step: 2 });
+    const y = heading(
+      d,
+      c,
+      'Like a few titles you know',
+      'At least one movie and one TV show, so you can start matching.'
+    );
+    const h = notice(d, c.x, y, c.w, "We can't load titles right now.");
+    ui.button(d, c.x, y + h + 20, 'Try again', {
+      variant: 'primary',
+      w: c.w,
+      size: 'lg',
+      icon: 'refresh',
+    });
+    ui.button(d, c.cx, y + h + 80, 'Skip for now', {
+      variant: 'ghost',
+      center: true,
+    });
+    s.note(
+      "TMDB doesn't answer, so there are no titles and no search. Try again asks again (ONBOARD-9)."
+    );
+    s.note(
+      'Skip for now goes to the invite step, which works without TMDB, and onboarding counts as finished. Home then shows a "Like your first titles" card until there is a movie and a TV show in the Likes (HOME-5).'
+    );
+  });
+  B.frame('Onboarding · titles down · M · ONBOARD-9', 'phone', (s) => {
+    const c = onboardM(s, { step: 2 });
+    const y = heading(
+      d,
+      c,
+      'Like a few titles you know',
+      'At least one movie and one TV show.',
+      { size: 24 }
+    );
+    notice(d, c.x, y, c.w, "We can't load titles right now.");
+    footerM(s, {
+      buttons: [
+        ['Try again', { variant: 'primary', icon: 'refresh' }],
+        ['Skip for now', { variant: 'ghost' }],
+      ],
+    });
+    s.note('Same as desktop and web.');
+  });
+  B.frame('Onboarding · offline · D W · ONBOARD-3', 'desktop', (s) => {
+    const c = onboardDW(s, { step: 2, w: 976, offline: true });
+    let y = heading(
+      d,
+      c,
+      'Like a few titles you know',
+      'At least one movie and one TV show, so you can start matching.'
+    );
+    y -= 8;
+    ui.field(d, c.x, y, 400, {
+      placeholder: "Search works when you're online",
+      icon: 'search',
+    });
+    y += 56;
+    const top = footerDW(s, c, {
+      progress: { movies: 2, tv: 0 },
+      button: 'Continue',
+      disabled: true,
+    });
+    likesGrid(d, c.x, y, c.w, {
+      cols: 7,
+      liked: [0, 2],
+      disabled: true,
+      maxY: top,
+    });
+    s.note(
+      'Offline, as everywhere else in the app: the titles already loaded stay, the empty hearts are disabled with the reason in the banner, and the Likes made so far are kept (non-functional requirements).'
+    );
+    s.note(
+      'Search is disabled too. Once back online, the hearts come back and nothing has to be done again.'
+    );
+  });
+  B.frame('Onboarding · offline · M · ONBOARD-3', 'phone', (s) => {
+    const c = onboardM(s, { step: 2, offline: true });
+    let y = heading(d, c, 'Like a few titles you know', undefined, {
+      size: 24,
+    });
+    y -= 8;
+    ui.field(d, c.x, y, c.w, {
+      placeholder: "Search works when you're online",
+      icon: 'search',
+    });
+    y += 56;
+    const top = footerM(s, {
+      progress: { movies: 1, tv: 0 },
+      buttons: [['Continue', { variant: 'primary', disabled: true }]],
+    });
+    likesGrid(d, c.x, y, c.w, {
+      cols: 3,
+      gap: 12,
+      liked: [0],
+      disabled: true,
+      maxY: top,
+      textSize: 12,
+    });
+    s.note('Same as desktop and web.');
+  });
+  B.frame('Onboarding · invite · D W · ONBOARD-5', 'desktop', (s) => {
+    const c = onboardDW(s, { step: 3 });
+    ui.animation(d, c.cx - 140, c.y, 280, 150, 'Animation: two hearts meet');
+    const y = heading(
+      d,
+      { ...c, y: c.y + 174 },
+      'Invite your person',
+      'Movie Mates finds what you both want to watch. Invite the person you watch with.'
+    );
+    ui.button(d, c.x, y, 'Create invite link', {
+      variant: 'primary',
+      w: c.w,
+      size: 'lg',
+    });
+    ui.button(d, c.cx, y + 60, 'Skip for now', {
+      variant: 'ghost',
+      center: true,
+    });
+    s.note(
+      'Onboarding already counts as finished here: the Likes are in. Skip for now goes to Home, which shows an "Invite your person" card until there is a connection (ONBOARD-5, HOME-5).'
+    );
+    s.note(
+      'Not shown after accepting an invite: that person is already connected (ONBOARD-8).'
+    );
+  });
+  B.frame('Onboarding · invite · M · ONBOARD-5', 'phone', (s) => {
+    const c = onboardM(s, { step: 3 });
+    ui.animation(d, c.cx - 140, c.y, 280, 140, 'Animation: two hearts meet');
+    heading(
+      d,
+      { ...c, y: c.y + 164 },
+      'Invite your person',
+      'Movie Mates finds what you both want to watch. Invite the person you watch with.',
+      { size: 24 }
+    );
+    footerM(s, {
+      buttons: [
+        ['Create invite link', { variant: 'primary' }],
+        ['Skip for now', { variant: 'ghost' }],
+      ],
+    });
+    s.note('Same as desktop and web.');
+  });
+  B.frame(
+    'Onboarding · invite link ready · D W · ONBOARD-5 INVITE-1',
+    'desktop',
+    (s) => {
+      const c = onboardDW(s, { step: 3 });
+      let y = heading(
+        d,
+        c,
+        'Send this link to your person',
+        "When they accept, you'll see the titles you both like."
+      );
+      y = inviteLink(d, { ...c, y });
+      ui.button(d, c.x, y + 8, 'Share…', { w: c.w, size: 'lg' });
+      ui.button(d, c.x, y + 68, 'Done', {
+        variant: 'primary',
+        w: c.w,
+        size: 'lg',
+      });
+      s.note(
+        'The link works once and shows only your name and photo to whoever opens it (INVITE-1, P4). Copy link says "Copied" in its place for 2 seconds.'
+      );
+      s.note(
+        'Share opens the system share sheet with "Let\'s find something to watch together on Movie Mates: …", on the web only where the browser has one.'
+      );
+      s.note(
+        'Done goes to Home. The invite waits in Connections, under Pending invites, where it can be copied again or revoked (INVITE-3).'
+      );
+    }
+  );
+  B.frame(
+    'Onboarding · invite link ready · M · ONBOARD-5 INVITE-1 INVITE-2',
+    'phone',
+    (s) => {
+      const c = onboardM(s, { step: 3 });
+      let y = heading(
+        d,
+        c,
+        'Send this link to your person',
+        "When they accept, you'll see the titles you both like.",
+        { size: 24 }
+      );
+      y = inviteLink(d, { ...c, y });
+      const bw = (c.w - 12) / 2;
+      ui.button(d, c.x, y + 8, 'Share…', { w: bw, size: 'lg' });
+      ui.button(d, c.x + bw + 12, y + 8, 'Show QR code', {
+        w: bw,
+        size: 'lg',
+      });
+      footerM(s, { buttons: [['Done', { variant: 'primary' }]] });
+      s.note(
+        "Show QR code is for the person sitting next to you (INVITE-2). Share opens the phone's share sheet."
+      );
+    }
+  );
+  B.frame('Onboarding · QR code · M · INVITE-2', 'phone', (s) => {
+    const c = onboardM(s, { step: 3 });
+    const y = heading(
+      d,
+      c,
+      'Send this link to your person',
+      "When they accept, you'll see the titles you both like.",
+      { size: 24 }
+    );
+    inviteLink(d, { ...c, y });
+    s.flush();
+    ui.scrim(d, s.x, s.y, s.w, s.h, { r: 48 });
+    const top = s.bottom - 560;
+    const sy = ui.sheet(d, s.x, top, s.w, 560, { title: 'Scan to connect' });
+    qrCode(d, s.x + s.w / 2 - 120, sy + 24, 240);
+    d.text(
+      s.x + s.w / 2,
+      sy + 290,
+      'Open the camera on their phone\nand point it here.',
+      { size: 15, color: C.text, align: 'center' }
+    );
+    d.text(s.x + s.w / 2, sy + 340, 'Works once, until Nov 17.', {
+      size: 13,
+      color: C.muted,
+      align: 'center',
+    });
+    ui.button(d, s.x + 16, s.bottom - 34 - 56, 'Close', {
+      w: s.w - 32,
+      size: 'lg',
+    });
+    ui.homeIndicator(d, s.x, s.bottom, s.w);
+    s.note(
+      'The screen stays at full brightness while the code shows. Scanning it opens the same link: the app if it is installed, or the web app (INVITE-2).'
+    );
+  });
+
+  // Arriving from an invite ----------------------------------------------------------------------------
+  B.heading(
+    'Arriving from an invite',
+    "Jo opens Sam's link. Sign in first, then accept or decline, then onboarding."
+  );
+  B.frame('Welcome · invited · D W · ONBOARD-8', 'desktop', (s) => {
+    welcomeDW(s, { invitedBy: 'Sam' });
+    s.note(
+      "Opening an invite link signed out: the welcome screen, with who invited you. Only Sam's name and photo, nothing else about Sam (ONBOARD-8)."
+    );
+    s.note(
+      'The buttons are the same. After sign-in, the accept or decline screen comes before onboarding, or before Home for an account that has finished it.'
+    );
+  });
+  B.frame('Welcome · invited · M · ONBOARD-8', 'phone', (s) => {
+    welcomeM(s, { invitedBy: 'Sam' });
+    s.note('Same as desktop and web.');
+  });
+  B.frame('Accept or decline · D W · INVITE-4', 'desktop', (s) => {
+    const c = screenDW(s, { back: false });
+    acceptInvite(d, { ...c, y: c.y - 24 });
+    s.note(
+      'Accept and Decline are the same size and weight, and neither is preselected: you are never connected without choosing (INVITE-4).'
+    );
+    s.note(
+      "Accept builds the shared list from both people's current Likes. A signed-in member goes straight to it; a new one does onboarding first, with 3 steps (ONBOARD-8)."
+    );
+    s.note(
+      'Closing the app without choosing keeps the invite under "Invites for you" in Connections until it expires (INVITE-6).'
+    );
+  });
+  B.frame('Accept or decline · M · INVITE-4', 'phone', (s) => {
+    const c = screenM(s, { back: false });
+    acceptInvite(d, { ...c, y: c.y + 40 }, { phone: true });
+    s.note('Same as desktop and web.');
+  });
+  B.frame(
+    'Onboarding · name · after declining · D W · INVITE-4 ONBOARD-8',
+    'desktop',
+    (s) => {
+      const c = onboardDW(s, { step: 0 });
+      const y = nameStep(d, c);
+      ui.button(d, c.x, y + 28, 'Get started', {
+        variant: 'primary',
+        w: c.w,
+        size: 'lg',
+        disabled: true,
+      });
+      ui.message(d, c.cx, s.bottom - 76, "Declined. Sam won't be told.", {
+        icon: 'check',
+      });
+      s.note(
+        "After Decline, the link stops working and the next screen says so: onboarding as usual for a new member, with the invite step; Home for anyone else. Sam isn't told (INVITE-4, P3)."
+      );
+    }
+  );
+  B.frame(
+    'Onboarding · first Likes · after accepting · M · ONBOARD-8',
+    'phone',
+    (s) => {
+      const c = onboardM(s, { step: 2, steps: 3 });
+      let y = heading(
+        d,
+        c,
+        'Like a few titles you know',
+        'Every title you and Sam both like becomes a match.',
+        { size: 24 }
+      );
+      y -= 8;
+      ui.field(d, c.x, y, c.w, {
+        placeholder: 'Search for a title',
+        icon: 'search',
+      });
+      y += 56;
+      const top = footerM(s, {
+        progress: { movies: 1, tv: 1 },
+        buttons: [['See your matches with Sam', { variant: 'primary' }]],
+      });
+      likesGrid(d, c.x, y, c.w, {
+        cols: 3,
+        gap: 12,
+        liked: [0, 1],
+        maxY: top,
+        textSize: 12,
+      });
+      s.note(
+        'After accepting, there are 3 steps: the invite step is skipped because Sam is already connected. The last button says where it goes (ONBOARD-8).'
+      );
+      s.note(
+        'It opens the shared list with Sam, which fills in as either of you likes titles; it may still be empty (MATCH-8).'
+      );
+    }
+  );
+  B.frame("Invite can't be used · expired · D W · INVITE-5", 'desktop', (s) => {
+    inviteProblem(s, {
+      title: 'This invite has expired',
+      body: 'Ask for a new one.',
+      buttons: [['Continue', { variant: 'primary' }]],
+    });
+    s.note(
+      'Shown after sign-in. A new member goes on to onboarding as usual, with the invite step; anyone else sees Go to Home instead (INVITE-5, ONBOARD-8).'
+    );
+    s.note('Every case has a way forward, never a dead end.');
+  });
+  B.frame("Invite can't be used · expired · M · INVITE-5", 'phone', (s) => {
+    inviteProblem(s, {
+      title: 'This invite has expired',
+      body: 'Ask for a new one.',
+      buttons: [['Continue', { variant: 'primary' }]],
+      phone: true,
+    });
+    s.note('Same as desktop and web.');
+  });
+  B.frame(
+    "Invite can't be used · doesn't work · D W · INVITE-5",
+    'desktop',
+    (s) => {
+      inviteProblem(s, {
+        title: "This invite doesn't work anymore",
+        body: 'Ask for a new one.',
+        buttons: [['Go to Home', { variant: 'primary' }]],
+      });
+      s.note(
+        'Used, revoked, a wrong code, or from an account that was deleted: the same words for all, so the screen reveals nothing (INVITE-5, P5).'
+      );
+    }
+  );
+  B.frame(
+    "Invite can't be used · your own · D W · INVITE-5",
+    'desktop',
+    (s) => {
+      inviteProblem(s, {
+        title: 'This is your invite',
+        body: 'Send it to the person you want to connect with.',
+        buttons: [
+          ['Copy link', { variant: 'primary' }],
+          ['Go to Home', { variant: 'ghost' }],
+        ],
+      });
+      s.note('Opened by the person who made it, often to check it works.');
+    }
+  );
+  B.frame(
+    "Invite can't be used · already connected · D W · INVITE-5",
+    'desktop',
+    (s) => {
+      inviteProblem(s, {
+        title: "You're already connected with Sam",
+        body: 'Your matches with Sam are in your shared list.',
+        buttons: [
+          ['Open your matches', { variant: 'primary' }],
+          ['Go to Home', { variant: 'ghost' }],
+        ],
+      });
+      s.note('The invite stays unused, and Sam can revoke it (INVITE-3).');
+    }
+  );
+  B.frame(
+    "Invite can't be used · connection limit · D W · INVITE-5",
+    'desktop',
+    (s) => {
+      inviteProblem(s, {
+        title: 'One of you has reached the limit of 20 connections',
+        body: 'The invite keeps working until Nov 17, so it can be used once there is room.',
+        buttons: [['Go to Home', { variant: 'primary' }]],
+      });
+      s.note(
+        'It says "one of you", not who, so it doesn\'t reveal how many connections Sam has (INVITE-5).'
+      );
+    }
+  );
 
   return d;
 }
