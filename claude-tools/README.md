@@ -55,7 +55,7 @@ node claude-tools/wireframes/run.mjs
 | `frames.js`             | Frames on the canvas, and the desktop and phone app layouts                       |
 | `shell.js`, `states.js` | The frames of `shell.excalidraw` and `states.excalidraw`                          |
 | `auth.js`               | The frames of `auth.excalidraw`: sign-in, onboarding and arriving from an invite  |
-| `browse.js`             | The frames of `browse.excalidraw`: Home and Search (#157)                         |
+| `browse.js`             | The frames of `browse.excalidraw`: Home, Search, the title and person pages       |
 | `flow.js`               | Flowcharts in the same style: boxes, diamonds for questions, labeled arrows       |
 | `kit.js`, `sheet.js`    | The kit library, and the sheet that shows it as one frame                         |
 | `drafted.json`          | The fingerprints, written by `run.mjs`                                            |

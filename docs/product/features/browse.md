@@ -18,7 +18,7 @@ Two rules apply to every screen here ([decisions 17 and 18](../requirements.md#6
 - **Grids grow with Show more, not infinite scroll.** A grid starts with 20 items and each **Show more** adds
   30, so the end of the page is always reachable and you keep your place.
 
-**Wireframes:** [every Home and Search frame](../../design/wireframes/frames.md#browse). Loading, TMDB down
+**Wireframes:** [every browse frame](../../design/wireframes/frames.md#browse). Loading, TMDB down
 and offline are drawn once for every screen, in the
 [shared states](../../design/wireframes/frames.md#states).
 
@@ -192,12 +192,18 @@ The sections, top to bottom: the header (TITLE-1), your match (TITLE-7), where t
 description and details (TITLE-2), seasons for a TV show (TITLE-6), the cast (TITLE-3), and related titles
 (TITLE-5) at the bottom.
 
+On a wide window the page has two columns under the header: the description, seasons and cast on the left,
+and where to watch and the facts on the right. Related titles span both at the bottom. A narrow window, text at
+200% and the phone get one column in the order above. There are no tabs, so nothing is hidden behind one.
+
 ### TITLE-1 · The header: what it is and the main action
 
 As someone deciding whether to watch something, I want the essentials at the top, so that I can like it or
 move on in seconds.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
+
+Wireframes: [a movie, desktop and web](../../design/wireframes/png/browse--title-page--movie--dw.png), [a TV show, phone](../../design/wireframes/png/browse--title-page--tv-show--m.png), [loading](../../design/wireframes/png/browse--title-page--loading--dw.png), [little data, phone](../../design/wireframes/png/browse--title-page--little-data--m.png).
 
 - [ ] Backdrop, poster, title, year, and the type
 - [ ] Movie: runtime and age rating for your region. TV show: years running ("2019–2023", or "2019–" if still
@@ -214,6 +220,8 @@ I'd be watching.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
 
+Wireframes: [a movie, desktop and web](../../design/wireframes/png/browse--title-page--movie--dw.png), [a TV show, phone](../../design/wireframes/png/browse--title-page--tv-show--m.png), [little data, phone](../../design/wireframes/png/browse--title-page--little-data--m.png).
+
 - [ ] The overview, cut to about 5 lines with **More** when longer
 - [ ] Movie: release date in your region, director, original language, and budget and revenue only when TMDB
       has a number above zero
@@ -227,6 +235,8 @@ As someone who picks by actor, I want to see who's in it, so that I can find mor
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
 
+Wireframes: [a movie, desktop and web](../../design/wireframes/png/browse--title-page--movie--dw.png), [a TV show, phone](../../design/wireframes/png/browse--title-page--tv-show--m.png).
+
 - [ ] A grid of the first 12 cast members: photo, name and character. **Show more** adds the next ones, up to
       the first 30 in TMDB's order.
 - [ ] Each opens the person page (PERSON-1)
@@ -239,6 +249,8 @@ As someone who wants to watch it tonight, I want to know which of my services ha
 each app.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
+
+Wireframes: [a movie, desktop and web](../../design/wireframes/png/browse--title-page--movie--dw.png), [a TV show, phone](../../design/wireframes/png/browse--title-page--tv-show--m.png), [not on any service, phone](../../design/wireframes/png/browse--title-page--not-on-any-service--m.png).
 
 - [ ] Services for your region, from TMDB's watch providers, grouped as **Stream**, **Rent** and **Buy**,
       each with its logo and name. The region is **United States** for everyone at first, and you can change
@@ -263,6 +275,8 @@ It's the last section of the title page, under the cast.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
 
+Wireframes: [a movie, desktop and web](../../design/wireframes/png/browse--title-page--movie--dw.png), [a TV show, phone](../../design/wireframes/png/browse--title-page--tv-show--m.png).
+
 - [ ] A grid of up to 20 posters from TMDB's recommendations, or its similar titles when there are no
       recommendations. It shows 10, and **Show more** shows the rest.
 - [ ] Each poster has the heart and opens its own title page
@@ -274,6 +288,8 @@ As someone looking at a TV show, I want to see its seasons, so that I know how m
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
 
+Wireframes: [a TV show, phone](../../design/wireframes/png/browse--title-page--tv-show--m.png).
+
 - [ ] A list of seasons: poster, name, year and number of episodes. Specials come last.
 - [ ] The total number of episodes in the header of the section
 - [ ] Seasons aren't liked separately: the heart is for the whole show (see the glossary's **Title**)
@@ -283,6 +299,8 @@ As someone looking at a TV show, I want to see its seasons, so that I know how m
 As someone with connections, I want to see when a title is already a match, so that I know we both want it.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [a movie, desktop and web](../../design/wireframes/png/browse--title-page--movie--dw.png).
 
 - [ ] When the title is on a shared match list, a chip under the heart: "Match with Sam" (and "+1" for more
       connections), which opens that match list
@@ -297,6 +315,8 @@ As someone unsure about a title, I want to watch its trailer without leaving the
 quickly.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/browse--trailer--dw.png), [phone](../../design/wireframes/png/browse--trailer--m.png).
 
 - [ ] Uses TMDB's official YouTube trailer in your language, then in English, then any YouTube trailer
 - [ ] Desktop and web: plays in a dialog over the page, from YouTube's privacy-enhanced player
@@ -314,6 +334,8 @@ quickly.
 As someone who liked a performance, I want to see the person's other work, so that I can like more of it.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/browse--person-page--dw.png), [phone](../../design/wireframes/png/browse--person-page--m.png).
 
 - [ ] Photo, name, what they're known for (Acting, Directing, …), birth date and place, and death date when
       there is one

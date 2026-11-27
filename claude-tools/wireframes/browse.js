@@ -1,7 +1,8 @@
 // Claude tool: Claude runs and changes this file; people don't edit it by hand. See claude-tools/README.md.
 //
-// browse.excalidraw (#157): Home and Search. Loading, TMDB down and offline are drawn once for every
-// screen in states.excalidraw, so these frames show only what is particular to Home and Search.
+// browse.excalidraw (#157): Home, Search, the title page, the trailer and the person page. Loading, TMDB
+// down and offline are drawn once for every screen in states.excalidraw, so these frames show only what is
+// particular to these screens.
 import { C, Doc, measure, wrap } from './lib';
 import * as ui from './ui';
 import { Board, desktopApp, hero, pageTitle, phoneApp } from './frames';
@@ -331,14 +332,528 @@ function bigButton(d, x, y, label, o = {}) {
   return w;
 }
 
+// --- The title page and the person page ---------------------------------------------------------------
+
+/** The movie the desktop title page shows. */
+const MOVIE = {
+  name: 'Dune: Part Two',
+  meta: 'Movie · 2024 · 2 h 46 min · PG-13',
+  rating: '8.2',
+  votes: '5,400 votes · Sci-Fi, Adventure',
+  tagline: 'Long live the fighters.',
+  overview:
+    'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, he endeavors to prevent a terrible future only he can foresee.',
+  facts: [
+    ['Release date', 'March 1, 2024 (United States)'],
+    ['Director', 'Denis Villeneuve'],
+    ['Original language', 'English'],
+    ['Budget', '$190,000,000'],
+    ['Revenue', '$714,444,358'],
+  ],
+  watch: [
+    ['Stream', ['Max']],
+    ['Rent', ['Apple TV', 'Prime Video']],
+    ['Buy', ['Apple TV', 'Google Play']],
+  ],
+};
+
+/** The TV show the phone title page shows. */
+const SHOW = {
+  name: 'Severance',
+  meta: 'TV show · 2022– · 2 seasons · TV-MA',
+  rating: '8.4',
+  votes: '2,900 votes · Drama, Mystery, Sci-Fi',
+  tagline: 'Love your work.',
+  overview:
+    'Mark leads a team of office workers whose memories have been surgically divided between their work and personal lives. When a mysterious colleague appears outside of work, it begins a journey to discover the truth about their jobs.',
+  facts: [
+    ['Created by', 'Dan Erickson'],
+    ['Network', 'Apple TV+'],
+    ['Status', 'Returning'],
+  ],
+  watch: [['Stream', ['Apple TV+']]],
+};
+
+/** The cast of the movie, with one person who has no photo (initials instead). */
+const CAST = [
+  ['Timothée Chalamet', 'Paul Atreides'],
+  ['Zendaya', 'Chani'],
+  ['Rebecca Ferguson', 'Lady Jessica'],
+  ['Javier Bardem', 'Stilgar'],
+  ['Josh Brolin', 'Gurney Halleck'],
+  ['Austin Butler', 'Feyd-Rautha'],
+  ['Florence Pugh', 'Princess Irulan'],
+  ['Dave Bautista', 'Rabban'],
+  ['Christopher Walken', 'Emperor Shaddam IV'],
+  ['Léa Seydoux', 'Lady Margot Fenring'],
+  ['Souheila Yacoub', 'Shishakli', 'SY'],
+  ['Stellan Skarsgård', 'Baron Harkonnen'],
+];
+
+/** The cast of the TV show. */
+const SHOW_CAST = [
+  ['Adam Scott', 'Mark Scout'],
+  ['Britt Lower', 'Helly R.'],
+  ['Zach Cherry', 'Dylan G.'],
+  ['John Turturro', 'Irving B.'],
+  ['Patricia Arquette', 'Harmony Cobel'],
+  ['Tramell Tillman', 'Seth Milchick'],
+  ['Dichen Lachman', 'Gemma'],
+  ['Jen Tullock', 'Devon'],
+  ['Christopher Walken', 'Burt G.'],
+];
+
+/** Related titles under the movie. */
+const RELATED = [
+  ['Dune', 'Movie · 2021'],
+  ['Arrival', 'Movie · 2016'],
+  ['Blade Runner 2049', 'Movie · 2017'],
+  ['Interstellar', 'Movie · 2014'],
+  ['Foundation', 'TV show · 2021'],
+  ['Sicario', 'Movie · 2015'],
+  ['Prisoners', 'Movie · 2013'],
+  ['The Martian', 'Movie · 2015'],
+  ['Mad Max: Fury Road', 'Movie · 2015'],
+  ['Silo', 'TV show · 2023'],
+];
+
+/** Related titles under the TV show. */
+const SHOW_RELATED = [
+  ['Silo', 'TV show · 2023'],
+  ['Black Mirror', 'TV show · 2011'],
+  ['Mr. Robot', 'TV show · 2015'],
+  ['The Leftovers', 'TV show · 2014'],
+  ['Dark', 'TV show · 2017'],
+  ['Fallout', 'TV show · 2024'],
+];
+
+/** What the person page lists under Known for. */
+const KNOWN_FOR = [
+  ['Dune: Part Two', '2024 · Chani'],
+  ['Challengers', '2024 · Tashi'],
+  ['Euphoria', 'TV · 2019 · Rue'],
+  ['Spider-Man: No Way Home', '2021 · MJ'],
+  ['The Greatest Showman', '2017 · Anne'],
+  ['Malcolm & Marie', '2021 · Marie'],
+];
+
 /**
- * Draws browse.excalidraw: Home and Search on desktop and web, and on the phone.
+ * Draws a section's heading, as the title page and the person page use it.
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {string} text - The heading.
+ * @param {string} [sub] - A gray note after it, such as "19 episodes".
+ * @returns {number} The height it takes, 40.
+ * @example
+ * sectionTitle(d, 272, 900, 'Cast');
+ * // → 40
+ */
+function sectionTitle(d, x, y, text, sub) {
+  const t = d.text(x, y, text, { size: 20 });
+  if (sub) {
+    d.text(t.x + t.width + 10, y + 5, sub, { size: 14, color: C.muted });
+  }
+  return 40;
+}
+
+/**
+ * Draws the TMDB rating as a ring with the score inside.
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} cx - The center, across.
+ * @param {number} cy - The center, down.
+ * @param {string} value - The score, such as '8.2'.
+ * @returns {void}
+ * @example
+ * ratingRing(d, 500, 600, '8.2');
+ */
+function ratingRing(d, cx, cy, value) {
+  d.circle(cx, cy, 38, { fill: C.white, stroke: C.ink, sw: 3 });
+  d.textMid(cx, cy, value, { size: 13, align: 'center' });
+}
+
+/**
+ * Draws the "Match with Sam" chip that sits under the heart when the title is on a shared list (TITLE-7).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @returns {number} Its width.
+ * @example
+ * matchChip(d, 470, 640);
+ * // → 182
+ */
+function matchChip(d, x, y) {
+  const label = 'Match with Sam';
+  const w = measure(label, 14).w + 92;
+  d.rect(x, y, w, 36, { r: 18, fill: C.fill, stroke: C.ink });
+  ui.avatar(d, x + 20, y + 18, 24, 'S');
+  d.textMid(x + 40, y + 18, label, { size: 14 });
+  d.textMid(x + w - 36, y + 18, '+1', { size: 13, color: C.muted });
+  ui.icon(d, 'forward', x + w - 14, y + 18, 12);
+  return w;
+}
+
+/**
+ * Draws the title page's header: the backdrop, the poster over its edge, the title, the facts line, the
+ * rating, the tagline and the buttons, with the heart first (TITLE-1).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} w - The width; under 600 px it's the one-column version, edge to edge.
+ * @param {object} [o] - `t` (MOVIE or SHOW), `match` (the chip from TITLE-7), `backdrop: false` (the
+ *   poster's colors instead), `poster: false` (a plain tile), `loading` (only what the grid already knew),
+ *   `liked`, `trailer: false` (no trailer, so no button).
+ * @returns {number} The height it takes.
+ * @example
+ * titleHeader(d, 272, 112, 976, { match: true });
+ * // → 562
+ */
+function titleHeader(d, x, y, w, o = {}) {
+  const t = o.t ?? MOVIE;
+  const narrow = w < 600;
+  const bh = narrow ? 200 : 300;
+  if (o.loading) {
+    d.rect(x, y, w, bh, { r: narrow ? 0 : 12, fill: C.faint, stroke: C.faint });
+  } else if (o.backdrop === false) {
+    d.rect(x, y, w, bh, { r: narrow ? 0 : 12, fill: C.mid, stroke: C.mid });
+  } else {
+    d.rect(x, y, w, bh, {
+      r: narrow ? 0 : 12,
+      rough: 1,
+      fill: C.fill,
+      stroke: C.line,
+    });
+    d.line(
+      [
+        [x + 12, y + 12],
+        [x + w - 12, y + bh - 12],
+      ],
+      { stroke: C.faint }
+    );
+    d.line(
+      [
+        [x + w - 12, y + 12],
+        [x + 12, y + bh - 12],
+      ],
+      { stroke: C.faint }
+    );
+  }
+  const pw = narrow ? 110 : 170;
+  const ph = Math.round(pw * 1.5);
+  const px = x + (narrow ? 16 : 32);
+  const py = y + bh - (narrow ? 80 : 120);
+  if (o.poster === false) {
+    d.rect(px, py, pw, ph, { r: 6, fill: C.fill, stroke: C.line });
+    d.text(px + pw / 2, py + ph / 2 - 20, t.name, {
+      size: 13,
+      color: C.muted,
+      align: 'center',
+      wrap: pw - 16,
+    });
+  } else {
+    ui.poster(d, px, py, pw, { title: false, heart: false });
+  }
+  const tx = narrow ? x + 16 : px + pw + 28;
+  const tw = narrow ? w - 32 : x + w - tx;
+  let ty = narrow ? py + ph + 16 : y + bh + 18;
+  ty += d.text(tx, ty, t.name, { size: narrow ? 26 : 32, wrap: tw }).height + 6;
+  if (o.loading) {
+    d.text(tx, ty, 'Movie · 2024', { size: 14, color: C.text });
+    ty += 30;
+    ty += ui.skeletonLines(d, tx, ty, [tw * 0.5, tw * 0.3], { h: 12 }) + 20;
+  } else {
+    ty +=
+      d.text(tx, ty, t.meta, { size: 14, color: C.text, wrap: tw }).height + 12;
+    if (t.rating) {
+      ratingRing(d, tx + 19, ty + 19, t.rating);
+      d.textMid(tx + 50, ty + 19, t.votes, {
+        size: 13,
+        color: C.muted,
+        wrap: tw - 50,
+      });
+      ty += 50;
+    }
+    if (t.tagline) {
+      d.text(tx, ty, `"${t.tagline}"`, { size: 14, color: C.muted });
+      ty += 30;
+    }
+  }
+  const heart = o.liked ? 'heart-filled' : 'heart';
+  if (narrow) {
+    ui.button(d, tx, ty, o.liked ? 'Liked' : 'Like', {
+      variant: 'primary',
+      icon: heart,
+      w: tw,
+      size: 'lg',
+    });
+    ty += 56;
+    const noTrailer = o.trailer === false;
+    const bw = noTrailer ? tw : (tw - 12) / 2;
+    ui.button(d, tx, ty, 'Add to list', {
+      menu: true,
+      w: bw,
+      disabled: o.loading,
+    });
+    if (!noTrailer) {
+      ui.button(d, tx + bw + 12, ty, 'Trailer', {
+        icon: 'play',
+        w: bw,
+        disabled: o.loading,
+      });
+    }
+    ty += 48;
+  } else {
+    let bx = tx;
+    bx +=
+      ui.button(d, bx, ty, o.liked ? 'Liked' : 'Like', {
+        variant: 'primary',
+        icon: heart,
+        size: 'lg',
+      }).w + 12;
+    bx +=
+      ui.button(d, bx, ty + 6, 'Add to Watch later', {
+        menu: true,
+        disabled: o.loading,
+      }).w + 12;
+    ui.button(d, bx, ty + 6, 'Trailer', { icon: 'play', disabled: o.loading });
+    ty += 60;
+  }
+  if (o.match) {
+    matchChip(d, tx, ty);
+    ty += 48;
+  }
+  return Math.max(ty, py + ph) - y;
+}
+
+/**
+ * Draws "Where to watch": the services for the region grouped as Stream, Rent and Buy, the region with
+ * Change, and the JustWatch credit (TITLE-4).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} w - The width; the services wrap inside it.
+ * @param {object} [o] - `t` (MOVIE or SHOW), `none` (no service in the region has it).
+ * @returns {number} The height it takes.
+ * @example
+ * whereToWatch(d, 948, 700, 300);
+ * // → 302
+ */
+function whereToWatch(d, x, y, w, o = {}) {
+  const t = o.t ?? MOVIE;
+  let ny = y + sectionTitle(d, x, y, 'Where to watch');
+  const where = d.text(x, ny - 6, 'In the United States ·', {
+    size: 13,
+    color: C.text,
+  });
+  const change = d.text(where.x + where.width + 6, ny - 6, 'Change', {
+    size: 13,
+  });
+  d.line(
+    [
+      [change.x, ny + 9],
+      [change.x + change.width, ny + 9],
+    ],
+    { stroke: C.ink }
+  );
+  ny += 24;
+  if (o.none) {
+    const n = d.text(
+      x + 16,
+      ny + 12,
+      'Not available to stream or buy in the United States right now.',
+      { size: 14, wrap: w - 32 }
+    );
+    const box = d.rect(x, ny, w, n.height + 24, {
+      r: 8,
+      fill: C.fill,
+      stroke: C.dim,
+    });
+    // the box goes under the text
+    d.elements.splice(d.elements.indexOf(box), 1);
+    d.elements.splice(d.elements.indexOf(n), 0, box);
+    ny += n.height + 24 + 12;
+  } else {
+    t.watch.forEach(([group, services]) => {
+      d.text(x, ny, group, { size: 12, color: C.muted });
+      ny += 20;
+      let sx = x;
+      services.forEach((name) => {
+        const sw = measure(name, 14).w + 56;
+        if (sx > x && sx + sw > x + w) {
+          sx = x;
+          ny += 44;
+        }
+        d.rect(sx, ny, sw, 36, { r: 8, fill: C.white, stroke: C.line });
+        d.rect(sx + 8, ny + 8, 20, 20, { r: 4, fill: C.mid, stroke: C.mid });
+        d.textMid(sx + 36, ny + 18, name, { size: 14 });
+        sx += sw + 8;
+      });
+      ny += 50;
+    });
+  }
+  d.text(x, ny, 'Data from JustWatch', { size: 11, color: C.muted });
+  return ny + 20 - y;
+}
+
+/**
+ * Draws a list of facts, each a gray label over its value (TITLE-2).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} w - The width; long values wrap.
+ * @param {Array<[string, string]>} rows - [label, value] pairs.
+ * @returns {number} The height it takes.
+ * @example
+ * facts(d, 948, 1100, 300, MOVIE.facts);
+ * // → 250
+ */
+function facts(d, x, y, w, rows) {
+  let ny = y;
+  rows.forEach(([label, value]) => {
+    d.text(x, ny, label, { size: 12, color: C.muted });
+    ny += 18 + d.text(x, ny + 18, value, { size: 14, wrap: w }).height + 14;
+  });
+  return ny - y;
+}
+
+/**
+ * Draws a link: underlined text.
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {string} text - The words.
+ * @returns {void}
+ * @example
+ * link(d, 272, 880, 'More');
+ */
+function link(d, x, y, text) {
+  const t = d.text(x, y, text, { size: 14 });
+  d.line(
+    [
+      [t.x, y + 16],
+      [t.x + t.width, y + 16],
+    ],
+    { stroke: C.ink }
+  );
+}
+
+/**
+ * Draws the overview cut to about 5 lines, with More (TITLE-2).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} w - The width.
+ * @param {string} [text] - The overview; none says "No description yet."
+ * @returns {number} The height it takes.
+ * @example
+ * overview(d, 272, 760, 636, MOVIE.overview);
+ * // → 120
+ */
+function overview(d, x, y, w, text) {
+  if (!text) {
+    d.text(x, y, 'No description yet.', { size: 15, color: C.muted });
+    return 28;
+  }
+  const t = d.text(x, y, text, { size: 15, color: C.text, wrap: w });
+  link(d, x, y + t.height + 8, 'More');
+  return t.height + 34;
+}
+
+/**
+ * Draws a grid of cast members: the photo (or initials), the name and the character (TITLE-3).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} w - The width.
+ * @param {number} cols - The columns.
+ * @param {Array<string[]>} people - [name, character, initials when there's no photo].
+ * @returns {number} The height it takes.
+ * @example
+ * castGrid(d, 272, 900, 636, 4, CAST);
+ * // → 642
+ */
+function castGrid(d, x, y, w, cols, people) {
+  const gap = 16;
+  const cw = (w - gap * (cols - 1)) / cols;
+  const photoH = Math.round(cw * 1.1);
+  // room for a name on two lines
+  const rowH = photoH + 70;
+  people.forEach(([name, role, initials], i) => {
+    const cx = x + (i % cols) * (cw + gap);
+    const cy = y + Math.floor(i / cols) * (rowH + gap);
+    if (initials) {
+      d.rect(cx, cy, cw, photoH, { r: 8, fill: C.faint, stroke: C.line });
+      ui.avatar(
+        d,
+        cx + cw / 2,
+        cy + photoH / 2,
+        Math.min(64, cw - 20),
+        initials
+      );
+    } else {
+      d.rect(cx, cy, cw, photoH, {
+        r: 8,
+        rough: 1,
+        fill: C.fill,
+        stroke: C.line,
+      });
+      ui.icon(d, 'person', cx + cw / 2, cy + photoH / 2, 32, { color: C.mid });
+    }
+    const n = d.text(cx, cy + photoH + 6, name, { size: 13, wrap: cw });
+    d.text(cx, n.y + n.height + 2, role, {
+      size: 12,
+      color: C.muted,
+      wrap: cw,
+    });
+  });
+  const rows = Math.ceil(people.length / cols);
+  return rows * rowH + (rows - 1) * gap;
+}
+
+/**
+ * Draws the seasons of a TV show, newest last, specials at the end (TITLE-6).
+ *
+ * @param {import('./lib').Doc} d - The drawing.
+ * @param {number} x - The left edge.
+ * @param {number} y - The top edge.
+ * @param {number} w - The width.
+ * @returns {number} The height it takes.
+ * @example
+ * seasons(d, 16, 1400, 358);
+ * // → 224
+ */
+function seasons(d, x, y, w) {
+  let ny = y + sectionTitle(d, x, y, 'Seasons', '19 episodes');
+  [
+    ['Season 1', '2022 · 9 episodes'],
+    ['Season 2', '2025 · 10 episodes'],
+  ].forEach(([name, line]) => {
+    d.rect(x, ny, 56, 84, { r: 4, rough: 1, fill: C.fill, stroke: C.line });
+    d.text(x + 72, ny + 22, name, { size: 15 });
+    d.text(x + 72, ny + 46, line, { size: 13, color: C.muted, wrap: w - 72 });
+    ny += 96;
+  });
+  return ny - y;
+}
+
+/**
+ * Draws browse.excalidraw: Home, Search, the title page, the trailer and the person page, on desktop
+ * and web, and on the phone.
  *
  * @returns {import('./lib').Doc} The drawing.
  * @example
  * const d = buildBrowse();
  * d.elements.filter((e) => e.type === 'frame').length;
- * // → 14
+ * // → 24
  */
 export default function buildBrowse() {
   const d = new Doc('browse');
@@ -636,6 +1151,326 @@ export default function buildBrowse() {
     );
   });
 
+  // Title page -----------------------------------------------------------------------------------------
+  B.heading(
+    'Title page',
+    'One page for movies and TV shows. Drawn full length: two columns on a wide window, one on the phone.'
+  );
+  B.frame(
+    'Title page · movie · D W · TITLE-1 TITLE-2 TITLE-3 TITLE-4 TITLE-5 TITLE-7',
+    { w: 1280, h: 2500 },
+    (s) => {
+      const a = desktopApp(s, { active: 'Home' });
+      const x = a.x + 32;
+      const w = a.w - 64;
+      ui.button(d, x, a.y + 16, 'Back', { variant: 'ghost', icon: 'back' });
+      let y = a.y + 64;
+      y += titleHeader(d, x, y, w, { match: true, liked: true }) + 40;
+      const sideW = 300;
+      const mainW = w - sideW - 40;
+      const sx = x + mainW + 40;
+      let my = y + sectionTitle(d, x, y, 'About');
+      my += overview(d, x, my, mainW, MOVIE.overview) + 40;
+      my += sectionTitle(d, x, my, 'Cast');
+      my += castGrid(d, x, my, mainW, 4, CAST) + 20;
+      ui.button(d, x + mainW / 2, my, 'Show more', { center: true });
+      my += 56;
+      let sy = y + whereToWatch(d, sx, y, sideW) + 32;
+      sy += sectionTitle(d, sx, sy, 'Details');
+      sy += facts(d, sx, sy, sideW, MOVIE.facts);
+      y = Math.max(my, sy) + 32;
+      y += sectionTitle(d, x, y, 'More like this');
+      y += posterGrid(d, x, y, w, { items: RELATED, cols: 5, hover: -1 }) + 20;
+      ui.button(d, x + w / 2, y, 'Show more', { center: true });
+      s.note(
+        "Drawn full length, as if the window were tall; the sidebar stays put while the page scrolls. The poster's colors tint the page, as today (TITLE-1)."
+      );
+      s.note(
+        'Header: the heart is the main button (Liked here). Add to list (LIST) and Trailer (TITLE-8) are secondary; Trailer is hidden when there is none.'
+      );
+      s.note(
+        '"Match with Sam +1" appears only when the title is on a shared list, and opens it (TITLE-7). A title someone else likes but you don\'t shows nothing (privacy).'
+      );
+      s.note(
+        'Two columns on a wide window: the reading on the left, the quick facts on the right, where to watch first so you know before you like it for tonight (TITLE-4).'
+      );
+      s.note(
+        'Cast: 12, then Show more up to 30 (TITLE-3). Souheila Yacoub has no photo, so initials. Related titles span the width at the bottom: 10, then Show more (TITLE-5).'
+      );
+      s.note(
+        'Sections TMDB has nothing for are hidden, and facts it lacks are left out, never "Unknown" or "0" (TITLE-2). A section that fails to load says so on its own (states.excalidraw).'
+      );
+      s.note(
+        'A TV show on a wide window: Seasons go in the left column after About, and the facts become Created by, Network and Status.'
+      );
+    }
+  );
+  B.frame(
+    'Title page · TV show · M · TITLE-1 TITLE-2 TITLE-3 TITLE-4 TITLE-5 TITLE-6',
+    { w: 390, h: 2920 },
+    (s) => {
+      let { y } = s;
+      y += ui.phoneHeader(d, s.x, y, s.w, { back: 'Home', right: ['more'] });
+      y += titleHeader(d, s.x, y, s.w, { t: SHOW }) + 32;
+      const x = s.x + 16;
+      const w = s.w - 32;
+      y += whereToWatch(d, x, y, w, { t: SHOW }) + 32;
+      y += sectionTitle(d, x, y, 'About');
+      y += overview(d, x, y, w, SHOW.overview) + 20;
+      y += facts(d, x, y, w, SHOW.facts) + 20;
+      y += seasons(d, x, y, w) + 20;
+      y += sectionTitle(d, x, y, 'Cast');
+      y += castGrid(d, x, y, w, 3, SHOW_CAST) + 20;
+      ui.button(d, x + w / 2, y, 'Show more', { center: true });
+      y += 64;
+      y += sectionTitle(d, x, y, 'More like this');
+      y +=
+        posterGrid(d, x, y, w, {
+          items: SHOW_RELATED,
+          cols: 3,
+          gap: 12,
+          textSize: 12,
+        }) + 20;
+      ui.button(d, x + w / 2, y, 'Show more', { center: true });
+      ui.tabBar(d, s.x, s.bottom - 83, s.w, { active: 'Home', phone: true });
+      s.note(
+        "Drawn full length. On the phone it is one column in the story's order: header, where to watch, about and the facts, seasons, cast, related. The header and the tab bar stay put."
+      );
+      s.note(
+        'A TV show: years running ("2022–" while it runs) and the number of seasons in the header (TITLE-1); Created by, Network and Status in the facts, and the next episode\'s date when one is announced (TITLE-2).'
+      );
+      s.note(
+        'Seasons list the poster, name, year and episodes, with the total in the heading. The heart is for the whole show; seasons are not liked on their own (TITLE-6).'
+      );
+      s.note(
+        'Like is full width under the title, within thumb reach. ⋯ in the header opens Share (later, TITLE-9).'
+      );
+    }
+  );
+  B.frame('Title page · loading · D W · TITLE-1', 'desktop', (s) => {
+    const a = desktopApp(s, { active: 'Home' });
+    const x = a.x + 32;
+    const w = a.w - 64;
+    ui.button(d, x, a.y + 16, 'Back', { variant: 'ghost', icon: 'back' });
+    let y = a.y + 64;
+    y += titleHeader(d, x, y, w, { loading: true }) + 40;
+    const mainW = w - 340;
+    ui.skeletonLines(d, x, y, [mainW, mainW * 0.95, mainW * 0.9, mainW * 0.6]);
+    ui.skeletonLines(d, x + mainW + 40, y, [300, 220, 260, 180]);
+    s.note(
+      'Opened from a grid, the page already knows the poster, title, type and year, so they show at once, with the heart working. The rest are skeletons (TITLE-1).'
+    );
+    s.note(
+      'Add to list and Trailer wait until the title has loaded. Sections fill in as they arrive; the page is usable before all of them have.'
+    );
+  });
+  B.frame('Title page · not on any service · M · TITLE-4', 'phone', (s) => {
+    const a = phoneApp(s, { active: 'Home' });
+    let { y } = a;
+    y += ui.phoneHeader(d, a.x, y, a.w, { back: 'Home', right: ['more'] });
+    y +=
+      titleHeader(d, a.x, y, a.w, {
+        t: {
+          ...MOVIE,
+          name: 'Perfect Days',
+          meta: 'Movie · 2023 · 2 h 4 min',
+          rating: '7.8',
+          votes: '1,100 votes · Drama',
+          tagline: '',
+        },
+      }) + 24;
+    whereToWatch(d, a.x + 16, y, a.w - 32, { none: true });
+    s.note(
+      'No service in your region has it: said clearly, near the top, so you know before you like it for tonight (TITLE-4).'
+    );
+    s.note(
+      'Change opens the region setting. The region never hides a title; it only changes this section.'
+    );
+  });
+  B.frame('Title page · little data · M · TITLE-1 TITLE-2', 'phone', (s) => {
+    const a = phoneApp(s, { active: 'Home' });
+    let { y } = a;
+    y += ui.phoneHeader(d, a.x, y, a.w, { back: 'Search', right: ['more'] });
+    const t = {
+      name: 'Night Shift',
+      meta: 'Movie · 1998',
+      watch: [],
+    };
+    y +=
+      titleHeader(d, a.x, y, a.w, {
+        t,
+        backdrop: false,
+        poster: false,
+        trailer: false,
+      }) + 24;
+    const x = a.x + 16;
+    const w = a.w - 32;
+    y += sectionTitle(d, x, y, 'About');
+    y += overview(d, x, y, w) + 20;
+    facts(d, x, y, w, [['Original language', 'Spanish']]);
+    s.note(
+      'A title TMDB knows little about: no backdrop, so the header takes a color from the theme; no poster, so a plain tile with the title (States table).'
+    );
+    s.note(
+      'No rating, runtime, tagline or trailer, so those are left out. "No description yet." in muted text. Cast, seasons and related are hidden when empty; where to watch still says it isn\'t available.'
+    );
+  });
+
+  // Trailer --------------------------------------------------------------------------------------------
+  B.heading(
+    'Trailer',
+    "TMDB's official YouTube trailer: in a dialog on desktop and web, in YouTube on the phone."
+  );
+  B.frame('Trailer · D W · TITLE-8', 'desktop', (s) => {
+    const a = desktopApp(s, { active: 'Home' });
+    const x = a.x + 32;
+    const w = a.w - 64;
+    ui.button(d, x, a.y + 16, 'Back', { variant: 'ghost', icon: 'back' });
+    titleHeader(d, x, a.y + 64, w, { liked: true });
+    s.flush();
+    ui.scrim(d, s.x, s.top, s.w, s.bottom - s.top);
+    const vw = 880;
+    const vh = Math.round((vw * 9) / 16);
+    const dx = s.x + (s.w - vw) / 2;
+    const dy = s.top + 40;
+    const box = ui.dialog(d, dx, dy, vw, vh + 72, {
+      title: 'Dune: Part Two · Official Trailer',
+    });
+    d.rect(dx, box.body - 8, vw, vh, { fill: C.ink, stroke: C.ink });
+    d.circle(dx + vw / 2, box.body - 8 + vh / 2, 72, {
+      fill: C.white,
+      stroke: C.white,
+    });
+    ui.icon(d, 'play', dx + vw / 2 + 4, box.body - 8 + vh / 2, 28);
+    s.note(
+      "A dialog over the page with YouTube's privacy-enhanced player (youtube-nocookie.com). Esc, ✕ or a click outside closes it and stops the video; focus goes back to Trailer (TITLE-8)."
+    );
+    s.note(
+      "The official trailer in your language, then in English, then any YouTube trailer. None: the Trailer button isn't shown, here or on the Home hero."
+    );
+    s.note(
+      'Offline: the button stays, and pressing it says "You\'re offline".'
+    );
+  });
+  B.frame('Trailer · M · TITLE-8', 'phone', (s) => {
+    const { top } = s;
+    d.rect(s.x, top, s.w, 52, { fill: C.fill, stroke: C.line });
+    d.textMid(s.x + 16, top + 26, 'Done', { size: 16 });
+    d.textMid(s.x + s.w / 2, top + 26, 'youtube.com', {
+      size: 14,
+      color: C.text,
+      align: 'center',
+    });
+    const vh = Math.round((s.w * 9) / 16);
+    d.rect(s.x, top + 52, s.w, vh, { fill: C.ink, stroke: C.ink });
+    d.circle(s.x + s.w / 2, top + 52 + vh / 2, 56, {
+      fill: C.white,
+      stroke: C.white,
+    });
+    ui.icon(d, 'play', s.x + s.w / 2 + 3, top + 52 + vh / 2, 22);
+    ui.skeletonLines(d, s.x + 16, top + 52 + vh + 20, [300, 220, 260], {
+      h: 12,
+    });
+    ui.homeIndicator(d, s.x, s.bottom, s.w);
+    s.note(
+      "The YouTube app opens when it is installed. Otherwise an in-app browser (drawn here, lo-fi: it is the system's), and Done returns to the title page (TITLE-8)."
+    );
+  });
+
+  // Person page ----------------------------------------------------------------------------------------
+  B.heading(
+    'Person page',
+    'An actor, director or writer from TMDB, and what they are known for.'
+  );
+  B.frame('Person page · D W · PERSON-1', 'desktop', (s) => {
+    const a = desktopApp(s, { active: 'Home' });
+    const x = a.x + 32;
+    const w = a.w - 64;
+    ui.button(d, x, a.y + 16, 'Back', { variant: 'ghost', icon: 'back' });
+    let y = a.y + 64;
+    d.rect(x, y, 160, 240, { r: 8, rough: 1, fill: C.fill, stroke: C.line });
+    ui.icon(d, 'person', x + 80, y + 120, 48, { color: C.mid });
+    const tx = x + 192;
+    const tw = w - 192;
+    d.text(tx, y, 'Zendaya', { size: 32 });
+    d.text(tx, y + 48, 'Acting', { size: 15, color: C.text });
+    d.text(tx, y + 74, 'Born September 1, 1996, in Oakland, California', {
+      size: 14,
+      color: C.muted,
+    });
+    overview(
+      d,
+      tx,
+      y + 108,
+      tw,
+      'Zendaya is an American actress and singer. She began her career as a child model and backup dancer before gaining prominence for her role as Rocky Blue on the Disney Channel sitcom Shake It Up, and went on to star in films and series across many genres.'
+    );
+    y += 272;
+    y += sectionTitle(d, x, y, 'Known for');
+    y += ui.chips(d, x, y, ['All', 'Movies', 'TV shows'], { maxW: w }) + 20;
+    posterGrid(d, x, y, w, {
+      items: KNOWN_FOR,
+      cols: 6,
+      hover: -1,
+      liked: [0],
+      maxY: a.bottom,
+    });
+    s.note(
+      'Photo, name, what they are known for, birth date and place, and the death date when there is one (PERSON-1).'
+    );
+    s.note(
+      'The biography is cut to about 5 lines with More. With none in your language: the English one, or nothing.'
+    );
+    s.note(
+      'Known for: most popular first, with the heart, filtered by Movies and TV shows: 20, then Show more adds 30. The character, or for crew the job (Director, Writer), goes under the year.'
+    );
+  });
+  B.frame('Person page · M · PERSON-1', 'phone', (s) => {
+    const a = phoneApp(s, { active: 'Home' });
+    let { y } = a;
+    y += ui.phoneHeader(d, a.x, y, a.w, {
+      back: 'Dune: Part Two',
+      right: ['more'],
+    });
+    const x = a.x + 16;
+    const w = a.w - 32;
+    y += 8;
+    d.rect(x, y, 100, 150, { r: 8, rough: 1, fill: C.fill, stroke: C.line });
+    ui.icon(d, 'person', x + 50, y + 75, 36, { color: C.mid });
+    d.text(x + 116, y + 20, 'Zendaya', { size: 26 });
+    d.text(x + 116, y + 60, 'Acting', { size: 14, color: C.text });
+    d.text(x + 116, y + 84, 'Born September 1, 1996,\nin Oakland, California', {
+      size: 13,
+      color: C.muted,
+    });
+    y += 166;
+    y +=
+      overview(
+        d,
+        x,
+        y,
+        w,
+        'Zendaya is an American actress and singer. She began her career as a child model and backup dancer before gaining prominence on the Disney Channel.'
+      ) + 20;
+    y += sectionTitle(d, x, y, 'Known for');
+    y += ui.chips(d, x, y, ['All', 'Movies', 'TV shows'], { maxW: w }) + 16;
+    const h = posterGrid(d, x, y, w, {
+      items: KNOWN_FOR,
+      cols: 3,
+      gap: 12,
+      liked: [0],
+      maxY: a.bottom - 8,
+      textSize: 12,
+    });
+    cutRow(d, x, y + (h ? h + 12 : 0), w, 3, a.bottom + 12, {
+      hearts: true,
+      gap: 12,
+    });
+    s.note(
+      'Back is named after the title the person was opened from. The grid continues under the tab bar.'
+    );
+  });
+
   // Checks ---------------------------------------------------------------------------------------------
   B.heading('Checks', 'Home against the non-functional requirements.');
   B.frame('Home · text 200% · D W · A11Y-6', 'desktop', (s) => {
@@ -673,6 +1508,36 @@ export default function buildBrowse() {
     );
     s.note(
       'Nothing is cut off and nothing scrolls sideways. Icons keep their size; only text grows.'
+    );
+  });
+
+  B.frame('Title page · text 200% · D W · A11Y-6', 'desktop', (s) => {
+    const a = desktopApp(s, { active: 'Home', collapsed: true });
+    const x = a.x + 32;
+    const w = a.w - 64;
+    d.text(x, a.y + 12, '‹ Back', { size: 28 });
+    let y = a.y + 64;
+    d.rect(x, y, w, 200, { r: 12, rough: 1, fill: C.fill, stroke: C.line });
+    ui.poster(d, x + 24, y + 120, 110, { title: false, heart: false });
+    y += 310;
+    d.text(x, y, 'Dune: Part Two', { size: 60 });
+    y += 84;
+    d.text(x, y, 'Movie · 2024 · 2 h 46 min · PG-13', {
+      size: 28,
+      color: C.text,
+    });
+    y += 56;
+    let bx = x;
+    ['Like', 'Add to list ▾', 'Trailer'].forEach((label, i) => {
+      bx += bigButton(d, bx, y, label, { primary: i === 0 }) + 16;
+    });
+    y += 96;
+    d.text(x, y, 'Where to watch', { size: 40 });
+    s.note(
+      "Text at 200% (A11Y-6): the narrow layout, so one column in the story's order, as on the phone. The facts and where to watch move from the side column into the flow."
+    );
+    s.note(
+      "The buttons wrap onto a second line when they don't fit; nothing is cut off and nothing scrolls sideways."
     );
   });
 
