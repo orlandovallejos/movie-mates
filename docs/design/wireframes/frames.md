@@ -331,6 +331,94 @@ Stories: INVITE-5
 
 ![Invite can't be used · connection limit · D W](png/auth--invite-can-t-be-used--connection-limit--dw.png)
 
+## browse
+
+From [`browse.excalidraw`](browse.excalidraw).
+
+### Home · D W
+
+Stories: HOME-1, HOME-2, HOME-3, HOME-4
+
+![Home · D W](png/browse--home--dw.png)
+
+### Home · M
+
+Stories: HOME-1, HOME-2, HOME-4
+
+![Home · M](png/browse--home--m.png)
+
+### Home · genre picked · M
+
+Stories: HOME-3
+
+![Home · genre picked · M](png/browse--home--genre-picked--m.png)
+
+### Home · next-step card · D W
+
+Stories: HOME-5
+
+![Home · next-step card · D W](png/browse--home--next-step-card--dw.png)
+
+### Home · matches card · M
+
+Stories: HOME-5
+
+![Home · matches card · M](png/browse--home--matches-card--m.png)
+
+### Search · empty · D W
+
+Stories: SEARCH-1
+
+![Search · empty · D W](png/browse--search--empty--dw.png)
+
+### Search · empty · M
+
+Stories: SEARCH-1
+
+![Search · empty · M](png/browse--search--empty--m.png)
+
+### Search · results · D W
+
+Stories: SEARCH-2
+
+![Search · results · D W](png/browse--search--results--dw.png)
+
+### Search · results · M
+
+Stories: SEARCH-2
+
+![Search · results · M](png/browse--search--results--m.png)
+
+### Search · people · M
+
+Stories: SEARCH-2
+
+![Search · people · M](png/browse--search--people--m.png)
+
+### Search · studio · D W
+
+Stories: SEARCH-5
+
+![Search · studio · D W](png/browse--search--studio--dw.png)
+
+### Search · no results · D W
+
+Stories: SEARCH-3
+
+![Search · no results · D W](png/browse--search--no-results--dw.png)
+
+### Search · no results, filtered · M
+
+Stories: SEARCH-3
+
+![Search · no results, filtered · M](png/browse--search--no-results-filtered--m.png)
+
+### Home · text 200% · D W
+
+Stories: A11Y-6
+
+![Home · text 200% · D W](png/browse--home--text-200--dw.png)
+
 ## kit
 
 From [`kit.excalidraw`](kit.excalidraw).

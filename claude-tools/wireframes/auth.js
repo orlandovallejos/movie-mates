@@ -10,8 +10,6 @@ import { flowArrow, flowBox } from './flow';
 
 const EMAIL = 'alex@gmail.com';
 const COL = 400;
-/** The phone keyboard's height, from its top edge to the bottom of the screen. */
-const KEYBOARD_H = 291;
 const TERMS =
   "By continuing, you agree to the Terms and the Privacy Policy, and confirm you're 13 or older.";
 
@@ -119,60 +117,6 @@ function codeField(d, x, y, w, o = {}) {
   ui.icon(d, 'alert', x + 8, top + h + 14, 14);
   d.text(x + 22, top + h + 5, o.error, { size: 13, wrap: w - 22 });
   return top + h - y + 38;
-}
-
-/**
- * Draws the phone's keyboard at the bottom of the screen, so the frames show what stays above it.
- *
- * @param {object} s - The phone screen, from `Board.frame`.
- * @param {object} [o] - `kind`: 'email' (letters with @ and .), 'search' (letters, with a Search key) or
- *   'code' (the number pad); `suggestion`: the line above the keys, such as the code from Mail.
- * @returns {number} The y of the keyboard's top edge, where content must end.
- * @example
- * keyboard(s, { kind: 'code', suggestion: 'From Mail: 482913' });
- * // → 585 in the first phone frame (the keyboard is 291 px tall)
- */
-function keyboard(s, o = {}) {
-  const { d } = s;
-  const h = KEYBOARD_H;
-  const top = s.bottom - h;
-  ui.panel(d, s.x, top, s.w, h, 0, 48, { fill: C.mid, stroke: C.mid });
-  let y = top + 8;
-  if (o.suggestion) {
-    d.textMid(s.x + s.w / 2, y + 16, o.suggestion, {
-      size: 15,
-      align: 'center',
-    });
-    y += 40;
-  }
-  // keys per row: the number pad, or the letters with @ and . in the bottom row
-  const rows = o.kind === 'code' ? [3, 3, 3, 3] : [10, 9, 9, 5];
-  const rowH = o.kind === 'code' ? 46 : 42;
-  rows.forEach((n, r) => {
-    const gap = 6;
-    const kw = (s.w - 12 - gap * (n - 1)) / n;
-    for (let i = 0; i < n; i += 1) {
-      d.rect(s.x + 6 + i * (kw + gap), y + r * (rowH + 8), kw, rowH, {
-        r: 5,
-        fill: C.white,
-        stroke: C.white,
-      });
-    }
-  });
-  d.text(
-    s.x + 10,
-    top + h - 30,
-    pick(
-      [
-        [o.kind === 'code', 'Keyboard: numbers'],
-        [o.kind === 'search', 'Keyboard: letters, with Search'],
-      ],
-      'Keyboard: email (@ .)'
-    ),
-    { size: 11, color: C.dim }
-  );
-  ui.homeIndicator(d, s.x, s.bottom, s.w);
-  return top;
 }
 
 /**
@@ -1680,7 +1624,7 @@ export default function buildAuth() {
   B.frame('Enter your email · M · AUTH-2', 'phone', (s) => {
     const c = screenM(s);
     emailForm(d, c, { value: 'alex@gmial.com', suggest: EMAIL });
-    keyboard(s, { kind: 'email' });
+    ui.keyboard(s, { kind: 'email' });
     s.note(
       "The email keyboard, and the system's autofill. The field and Send link stay above the keyboard."
     );
@@ -1740,7 +1684,7 @@ export default function buildAuth() {
   });
   B.frame('Check your email · wrong code · M · AUTH-5', 'phone', (s) => {
     const c = screenM(s);
-    keyboard(s, { kind: 'code', suggestion: 'From Mail: 482913' });
+    ui.keyboard(s, { kind: 'code', suggestion: 'From Mail: 482913' });
     const y = heading(d, c, 'Check your email', `Sent to ${EMAIL}.`);
     const fy =
       y -
@@ -2128,7 +2072,7 @@ export default function buildAuth() {
   B.frame('Onboarding · search · M · ONBOARD-4', 'phone', (s) => {
     const c = onboardM(s, { step: 2 });
     // the keyboard goes on top of the results that scroll under it, after the bar
-    const kb = s.bottom - KEYBOARD_H;
+    const kb = s.bottom - ui.KEYBOARD_H;
     ui.field(d, c.x, c.y, c.w, {
       value: 'sev',
       icon: 'search',
@@ -2139,7 +2083,7 @@ export default function buildAuth() {
       buttons: [['Continue', { variant: 'primary' }]],
       bottom: kb,
     });
-    s.later.push(() => keyboard(s, { kind: 'search' }));
+    s.later.push(() => ui.keyboard(s, { kind: 'search' }));
     likesGrid(d, c.x, c.y + 56, c.w, {
       cols: 3,
       gap: 12,

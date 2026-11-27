@@ -6,6 +6,7 @@
 // eslint-disable-next-line import/no-unresolved
 import { exportToBlob } from '@excalidraw/excalidraw';
 import buildAuth from './auth';
+import buildBrowse from './browse';
 import buildShell from './shell';
 import buildStates from './states';
 import buildKit from './kit';
@@ -102,7 +103,8 @@ async function loadFonts() {
  * @example
  * const files = await window.draftAll(thirdParty);
  * Object.keys(files);
- * // → ['shell.excalidraw', 'states.excalidraw', 'kit.excalidrawlib', 'kit.excalidraw', 'auth.excalidraw']
+ * // → ['shell.excalidraw', 'states.excalidraw', 'kit.excalidrawlib', 'kit.excalidraw', 'auth.excalidraw',
+ * //    'browse.excalidraw']
  */
 window.draftAll = async (thirdParty) => {
   await loadFonts();
@@ -113,6 +115,7 @@ window.draftAll = async (thirdParty) => {
     'kit.excalidrawlib': `${JSON.stringify(kit, null, 2)}\n`,
     'kit.excalidraw': scene(buildKitSheet(kit).d),
     'auth.excalidraw': scene(buildAuth()),
+    'browse.excalidraw': scene(buildBrowse()),
   };
 };
 window.draftsReady = true;

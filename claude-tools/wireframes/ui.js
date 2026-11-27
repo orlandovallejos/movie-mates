@@ -993,7 +993,8 @@ export function logo(d, x, y, o = {}) {
  * @param {number} y - The top edge.
  * @param {number} h - The height.
  * @param {object} [o] - `active` (the current item, 'Home'), `collapsed` (icons only, for windows under
- *   1024 px), `labels` (translated words, by English word).
+ *   1024 px), `labels` (translated words, by English word), `search` (the field in use on the Search
+ *   screen: `{ value }` what was typed, or `{ placeholder }` with the focus in an empty field).
  * @returns {number} Its width: 240, or 64 when collapsed.
  * @example
  * sidebar(d, 0, 0, 772, { active: 'Home' });
@@ -1019,12 +1020,21 @@ export function sidebar(d, x, y, h, o = {}) {
     } else {
       logo(d, x + 20, y + 16);
       field(d, x + 16, y + 56, w - 32, {
-        placeholder: L.search ?? 'Search',
+        placeholder: o.search?.placeholder ?? L.search ?? 'Search',
+        value: o.search?.value,
         icon: 'search',
-        shortcut: '⌘K',
+        shortcut: o.search?.value ? '✕' : '⌘K',
         h: 36,
         size: 14,
       });
+      // the focus ring while it's in use
+      if (o.search) {
+        d.rect(x + 12, y + 52, w - 24, 44, {
+          r: 10,
+          stroke: C.ink,
+          sw: 2,
+        });
+      }
     }
     SIDEBAR_ITEMS.forEach(([ic, label, b], i) => {
       const iy = y + 112 + i * 44;
@@ -1242,6 +1252,63 @@ export function phoneHeader(d, x, y, w, o = {}) {
 }
 
 // --- Patterns -------------------------------------------------------------------------------------
+
+/** The phone keyboard's height, from its top edge to the bottom of the screen. */
+export const KEYBOARD_H = 291;
+
+/**
+ * Draws the phone's keyboard at the bottom of the screen, so the frames show what stays above it.
+ *
+ * @param {object} s - The phone screen, from `Board.frame`.
+ * @param {object} [o] - `kind`: 'email' (letters with @ and .), 'search' (letters, with a Search key) or
+ *   'code' (the number pad); `suggestion`: the line above the keys, such as the code from Mail.
+ * @returns {number} The y of the keyboard's top edge, where content must end.
+ * @example
+ * keyboard(s, { kind: 'code', suggestion: 'From Mail: 482913' });
+ * // → 585 in the first phone frame (the keyboard is 291 px tall)
+ */
+export function keyboard(s, o = {}) {
+  const { d } = s;
+  const h = KEYBOARD_H;
+  const top = s.bottom - h;
+  panel(d, s.x, top, s.w, h, 0, 48, { fill: C.mid, stroke: C.mid });
+  let y = top + 8;
+  if (o.suggestion) {
+    d.textMid(s.x + s.w / 2, y + 16, o.suggestion, {
+      size: 15,
+      align: 'center',
+    });
+    y += 40;
+  }
+  // keys per row: the number pad, or the letters with @ and . in the bottom row
+  const rows = o.kind === 'code' ? [3, 3, 3, 3] : [10, 9, 9, 5];
+  const rowH = o.kind === 'code' ? 46 : 42;
+  rows.forEach((n, r) => {
+    const gap = 6;
+    const kw = (s.w - 12 - gap * (n - 1)) / n;
+    for (let i = 0; i < n; i += 1) {
+      d.rect(s.x + 6 + i * (kw + gap), y + r * (rowH + 8), kw, rowH, {
+        r: 5,
+        fill: C.white,
+        stroke: C.white,
+      });
+    }
+  });
+  d.text(
+    s.x + 10,
+    top + h - 30,
+    pick(
+      [
+        [o.kind === 'code', 'Keyboard: numbers'],
+        [o.kind === 'search', 'Keyboard: letters, with Search'],
+      ],
+      'Keyboard: email (@ .)'
+    ),
+    { size: 11, color: C.dim }
+  );
+  homeIndicator(d, s.x, s.bottom, s.w);
+  return top;
+}
 
 /**
  * Draws the offline banner, which sits at the top and pushes the content down.
