@@ -34,8 +34,8 @@ turns them into the PNGs that get reviewed.
 node claude-tools/wireframes/run.mjs
 ```
 
-- It drafts `shell.excalidraw`, `states.excalidraw`, `kit.excalidrawlib` and `kit.excalidraw`. Name files
-  to draft only those: `node claude-tools/wireframes/run.mjs states.excalidraw`.
+- It drafts `shell.excalidraw`, `states.excalidraw`, `auth.excalidraw`, `kit.excalidrawlib` and
+  `kit.excalidraw`. Name files to draft only those: `node claude-tools/wireframes/run.mjs states.excalidraw`.
 - `--out <folder>` writes the drafts somewhere else instead, to compare them with the files in the repo.
 - It uses the packages installed for the export script (`npm --prefix scripts/wireframes ci`), so both use
   the same Excalidraw version.
@@ -54,5 +54,7 @@ node claude-tools/wireframes/run.mjs
 | `ui.js`                 | Icons and components: buttons, posters, grids, sidebar, tab bar, dialogs, …       |
 | `frames.js`             | Frames on the canvas, and the desktop and phone app layouts                       |
 | `shell.js`, `states.js` | The frames of `shell.excalidraw` and `states.excalidraw`                          |
+| `auth.js`               | The frames of `auth.excalidraw`: sign-in, then onboarding (#156)                  |
+| `flow.js`               | Flowcharts in the same style: boxes, diamonds for questions, labeled arrows       |
 | `kit.js`, `sheet.js`    | The kit library, and the sheet that shows it as one frame                         |
 | `drafted.json`          | The fingerprints, written by `run.mjs`                                            |

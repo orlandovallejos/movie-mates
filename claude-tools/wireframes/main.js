@@ -5,6 +5,7 @@
 // The package comes from scripts/wireframes/node_modules, which run.mjs gives esbuild as a search path.
 // eslint-disable-next-line import/no-unresolved
 import { exportToBlob } from '@excalidraw/excalidraw';
+import buildAuth from './auth';
 import buildShell from './shell';
 import buildStates from './states';
 import buildKit from './kit';
@@ -101,7 +102,7 @@ async function loadFonts() {
  * @example
  * const files = await window.draftAll(thirdParty);
  * Object.keys(files);
- * // → ['shell.excalidraw', 'states.excalidraw', 'kit.excalidrawlib', 'kit.excalidraw']
+ * // → ['shell.excalidraw', 'states.excalidraw', 'kit.excalidrawlib', 'kit.excalidraw', 'auth.excalidraw']
  */
 window.draftAll = async (thirdParty) => {
   await loadFonts();
@@ -111,6 +112,7 @@ window.draftAll = async (thirdParty) => {
     'states.excalidraw': scene(buildStates()),
     'kit.excalidrawlib': `${JSON.stringify(kit, null, 2)}\n`,
     'kit.excalidraw': scene(buildKitSheet(kit).d),
+    'auth.excalidraw': scene(buildAuth()),
   };
 };
 window.draftsReady = true;

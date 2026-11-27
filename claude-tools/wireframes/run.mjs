@@ -1,6 +1,7 @@
 // Claude tool: Claude runs and changes this file; people don't edit it by hand. See claude-tools/README.md.
 //
-// Drafts the wireframes from code: shell.excalidraw, states.excalidraw, kit.excalidrawlib and kit.excalidraw.
+// Drafts the wireframes from code: shell, states and auth (.excalidraw), and the kit (kit.excalidrawlib and
+// kit.excalidraw).
 // The drawing code runs in headless Chromium, so text is measured with the fonts Excalidraw uses, and the
 // files are written into docs/design/wireframes.
 //
@@ -33,6 +34,7 @@ const FILES = [
   'states.excalidraw',
   'kit.excalidrawlib',
   'kit.excalidraw',
+  'auth.excalidraw',
 ];
 // A made-up origin that only exists inside the headless browser; every other request is blocked
 const ORIGIN = 'http://drafts.localhost';
@@ -63,7 +65,7 @@ function sha256(text) {
  * // → { out: '/tmp/drafts', files: ['shell.excalidraw'], problems: [] }
  * parseArgs(['auth.excalidraw']);
  * // → { out: null, files: [], problems: ['auth.excalidraw: not drafted here; drafted files are
- * //    shell.excalidraw, states.excalidraw, kit.excalidrawlib, kit.excalidraw'] }
+ * //    shell.excalidraw, states.excalidraw, kit.excalidrawlib, kit.excalidraw, auth.excalidraw'] }
  */
 function parseArgs(args) {
   const outAt = args.indexOf('--out');
@@ -117,7 +119,8 @@ function handEdited(names, drafts, fingerprints) {
  * @example
  * const drafts = await draftAll();
  * Object.keys(drafts);
- * // → ['shell.excalidraw', 'states.excalidraw', 'kit.excalidrawlib', 'kit.excalidraw']
+ * // → ['shell.excalidraw', 'states.excalidraw', 'kit.excalidrawlib', 'kit.excalidraw',
+ * //    'auth.excalidraw']
  */
 async function draftAll() {
   const bundle = await build({

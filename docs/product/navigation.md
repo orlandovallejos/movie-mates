@@ -39,6 +39,8 @@ client: D desktop, W web, M phone. **Address** is the web route from [section 5]
 | Google or Apple sign-in          | The system's own sheet        | AUTH-8, AUTH-9             | W M     | —                    |
 | Privacy policy, terms            | Web page, readable signed out | SET-9                      | Browser | `/privacy`, `/terms` |
 
+Wireframes: [every sign-in frame](../design/wireframes/frames.md#auth).
+
 ### Onboarding
 
 Full screen, with no navigation, on the first sign-in only. Back goes to the previous step (ONBOARD-7).
@@ -212,6 +214,9 @@ phone. Opening an entry goes where its notification goes ([section 6](#6-deep-li
 
 ### Signed out to signed in
 
+The short version. The [sign-in flow](../design/wireframes/png/auth--sign-in-flow--dwm.png) draws every
+branch, including each way back.
+
 ```mermaid
 flowchart TD
     open([Open the app or a link]) --> signedIn{Signed in?}
@@ -222,7 +227,7 @@ flowchart TD
     check -- tap the link --> works{Link still works?}
     check -- type the code --> code{Code right?<br>AUTH-5}
     works -- no --> expired[Link no longer works<br>AUTH-6] --> email
-    code -- "no (5 tries)" --> check
+    code -- "no (3 tries)" --> check
     welcome -- Continue with Google or Apple --> provider[The provider's sign-in<br>AUTH-7 to AUTH-9]
     provider -- cancelled --> welcome
     works -- yes --> account
