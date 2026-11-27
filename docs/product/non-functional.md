@@ -34,6 +34,10 @@ The bar is [WCAG 2.2](https://www.w3.org/TR/WCAG22/) level AA on every client. T
 
 Trailers play in YouTube's player, so their captions are YouTube's.
 
+For A11Y-6, layouts switch by text size: breakpoints are set in text units (rem), so 200% text on a 1280 px
+window gets the narrow layout, on the desktop app and the web alike
+([wireframe](../design/wireframes/png/browse--home--text-200--dw.png)).
+
 ## Themes
 
 | ID      | Requirement                                                                                                                                         |

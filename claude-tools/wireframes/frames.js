@@ -195,7 +195,7 @@ export class Board {
  *
  * @param {object} s - The screen, from `Board.frame`.
  * @param {object} [o] - `active` (the current item, 'Home'), `collapsed` (icons only; by default below
- *   1024 px), `labels` (translated words, by English word).
+ *   1024 px), `labels` (translated words, by English word), `search` (as for `ui.sidebar`).
  * @returns {{ x: number, y: number, w: number, h: number, bottom: number }} The content area.
  * @example
  * // in a 1280 × 800 desktop frame at (16, 16)
@@ -207,6 +207,7 @@ export function desktopApp(s, o = {}) {
     active: o.active,
     collapsed: o.collapsed ?? s.w < 1024,
     labels: o.labels,
+    search: o.search,
   });
   return {
     x: s.x + sw,

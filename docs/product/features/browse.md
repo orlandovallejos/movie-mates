@@ -18,6 +18,10 @@ Two rules apply to every screen here ([decisions 17 and 18](../requirements.md#6
 - **Grids grow with Show more, not infinite scroll.** A grid starts with 20 items and each **Show more** adds
   30, so the end of the page is always reachable and you keep your place.
 
+**Wireframes:** [every Home and Search frame](../../design/wireframes/frames.md#browse). Loading, TMDB down
+and offline are drawn once for every screen, in the
+[shared states](../../design/wireframes/frames.md#states).
+
 **Contents:** [Home](#home) · [Search](#search) · [Title page](#title-page) · [Trailer](#trailer) ·
 [Person page](#person-page) · [What we don't show](#what-we-dont-show) · [States](#states) · [Later](#later)
 
@@ -30,6 +34,8 @@ Two rules apply to every screen here ([decisions 17 and 18](../requirements.md#6
 As someone opening the app, I want one title shown large, so that there's something to react to right away.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/browse--home--dw.png), [phone](../../design/wireframes/png/browse--home--m.png).
 
 - [ ] A trending title picked at random each time Home opens, with its backdrop, title, year, type (movie or
       TV show) and the first two lines of its description
@@ -46,6 +52,8 @@ searching.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
 
+Wireframes: [desktop and web](../../design/wireframes/png/browse--home--dw.png), [phone](../../design/wireframes/png/browse--home--m.png).
+
 - [ ] Under the hero, a line of chips picks what the grid shows: **Trending** (the default, movies and TV
       mixed), **Movies**, **TV shows**. The chips wrap onto a second line when they don't fit.
 - [ ] One grid of posters below the chips, scrolling down with the page: 20 titles, then **Show more** adds 30
@@ -59,6 +67,8 @@ As someone who picked genres in onboarding, I want Home to offer them, so that i
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [a genre picked, phone](../../design/wireframes/png/browse--home--genre-picked--m.png).
+
 - [ ] One chip per picked genre ("Comedy", "Sci-Fi and Fantasy") after the chips in HOME-2; picking one fills
       the grid with popular titles from that genre, movies and TV mixed
 - [ ] Changing the genres in Settings changes the chips the next time Home opens
@@ -69,6 +79,8 @@ As someone who picked genres in onboarding, I want Home to offer them, so that i
 As someone browsing a grid, I want to like a title from its poster, so that I don't have to open each one.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M6 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web, on hover](../../design/wireframes/png/browse--home--dw.png), [phone](../../design/wireframes/png/browse--home--m.png).
 
 - [ ] Behaves as LIKE: fills at once, undoes itself if saving fails
 - [ ] Titles already in your Likes show a filled heart wherever they appear
@@ -84,6 +96,8 @@ As a new member, I want Home to tell me the next step, so that I get to my first
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [the cards, desktop and web](../../design/wireframes/png/browse--home--next-step-card--dw.png), [matches, phone](../../design/wireframes/png/browse--home--matches-card--m.png).
+
 - [ ] One card at the top, at most, the first one that applies:
   1. "Like your first titles" when the Likes have no movie or no TV show (ONBOARD-9)
   2. "Invite your person" when there are no connections and no pending invites (ONBOARD-5)
@@ -91,6 +105,8 @@ As a new member, I want Home to tell me the next step, so that I get to my first
 - [ ] Cards 1 and 2 can be dismissed for good: someone who only wants a list of favorites doesn't need to be
       asked again. Inviting stays one tap away on the Connections screen.
 - [ ] Card 3 goes away once the matches are seen
+- [ ] Each card has one button: **Pick titles** opens the grid from ONBOARD-3, **Invite someone** opens
+      INVITE-1, **See matches** opens the shared list
 - [ ] **Privacy:** card 3 counts only matches, never the other person's Likes
 
 ## Search
@@ -101,16 +117,24 @@ As someone who knows what they want, I want search one step away, so that I don'
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
 
+Wireframes: [desktop and web](../../design/wireframes/png/browse--search--empty--dw.png), [phone](../../design/wireframes/png/browse--search--empty--m.png).
+
 - [ ] Reachable from the navigation on every client: a field at the top of the sidebar on desktop and web,
       and a tab of its own on the phone ([navigation](../navigation.md#3-navigation-per-client))
 - [ ] On desktop and web, ⌘K / Ctrl+K and `/` focus the search field from any screen
 - [ ] Opening search focuses the field and shows the keyboard on the phone
+- [ ] On desktop and web the sidebar's field is the search box: the results fill the screen next to it. In a
+      narrow window, where the sidebar shows only icons, the Search screen has its own field at the top.
+- [ ] Before anything is typed: a hint ("Search for titles, people, or a studio like Marvel") and the trending
+      grid, with the heart, so the screen is never empty
 
 ### SEARCH-2 · Results as you type
 
 As someone searching, I want results while I type, so that I can stop as soon as I see the title.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/browse--search--results--dw.png), [phone](../../design/wireframes/png/browse--search--results--m.png), [people, phone](../../design/wireframes/png/browse--search--people--m.png).
 
 - [ ] Starts after 2 characters, and waits until typing pauses (about 300 ms) before asking TMDB
 - [ ] Searches movies, TV shows and people together, with chips to narrow it: **All**, **Movies**, **TV
@@ -120,6 +144,8 @@ As someone searching, I want results while I type, so that I can stop as soon as
 - [ ] A title result shows its poster, title, year and type, and the heart. A person result shows the photo,
       name and what they're known for ("Acting · Dune, Lady Bird").
 - [ ] Results are in TMDB's order (most relevant first): 20, then **Show more** adds 30
+- [ ] Under **All**, up to 3 matching people come first, with **See all people** (which picks **People**), then
+      the titles
 - [ ] Choosing a result opens the title page or the person page. Back returns to the same results.
 - [ ] Keyboard on desktop and web: ↓ and ↑ move through results, Enter opens, Esc clears the field
 - [ ] Only the latest search's results are shown, even if an earlier request answers last
@@ -130,6 +156,8 @@ As someone whose search found nothing, I want to know it worked and what to try,
 app is broken.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/browse--search--no-results--dw.png), [with a filter, phone](../../design/wireframes/png/browse--search--no-results-filtered--m.png).
 
 - [ ] "No results for "dnue"." with a hint: check the spelling, or try the original title
 - [ ] When a filter is on, it offers to search **All** instead
@@ -142,6 +170,8 @@ As a fan who types "Marvel" or "DC", I want the films and shows from that univer
 or Superman even though the word isn't in their titles.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M5 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/browse--search--studio--dw.png).
 
 - [ ] Besides titles and people, search also asks TMDB for matching **collections** ("X-Men Collection"),
       **companies** ("Marvel Studios", "DC Studios") and **keywords** ("marvel cinematic universe", "dc

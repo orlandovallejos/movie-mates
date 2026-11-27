@@ -828,7 +828,7 @@ export default function buildShell() {
       'The tab bar keeps its size, as the system does: on iOS a long press shows the name large (the Large Content Viewer).'
     );
     s.note(
-      'Desktop and web: 200% zoom on a 1280 px window leaves 640 px, so the web uses the phone layout. The desktop app either does the same or stops zoom at 150%: to decide before M5 builds the layout.'
+      'Desktop and web: layouts switch by text size, so 200% on a 1280 px window gets the narrow layout, on the desktop app as on the web (browse.excalidraw draws Home).'
     );
   });
 

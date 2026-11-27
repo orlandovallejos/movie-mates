@@ -52,6 +52,8 @@ on its right. The notes are part of the frame, so they're in the PNG.
   they differ, and the patterns in `states.excalidraw` cover the rest. A screen's frames show only what's
   new.
 - **Frames that test a requirement** (text length, large text) can be any size.
+- **Breakpoints count in text units**, so a larger text size picks the narrower layout: 200% text on a
+  1280 px window looks like the narrow layout with bigger text (A11Y-6).
 
 ### Names
 
