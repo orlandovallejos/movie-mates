@@ -54,7 +54,7 @@ node claude-tools/wireframes/run.mjs
 | `ui.js`                 | Icons and components: buttons, posters, grids, sidebar, tab bar, dialogs, …       |
 | `frames.js`             | Frames on the canvas, and the desktop and phone app layouts                       |
 | `shell.js`, `states.js` | The frames of `shell.excalidraw` and `states.excalidraw`                          |
-| `auth.js`               | The frames of `auth.excalidraw`: sign-in, then onboarding (#156)                  |
+| `auth.js`               | The frames of `auth.excalidraw`: sign-in, onboarding and arriving from an invite  |
 | `flow.js`               | Flowcharts in the same style: boxes, diamonds for questions, labeled arrows       |
 | `kit.js`, `sheet.js`    | The kit library, and the sheet that shows it as one frame                         |
 | `drafted.json`          | The fingerprints, written by `run.mjs`                                            |

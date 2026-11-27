@@ -93,6 +93,8 @@ agreeing.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [desktop and web](../../design/wireframes/png/auth--accept-or-decline--dw.png), [phone](../../design/wireframes/png/auth--accept-or-decline--m.png), [after declining](../../design/wireframes/png/auth--onboarding--name--after-declining--dw.png).
+
 - [ ] Opening the link shows a screen with the inviter's photo and name: "Sam wants to find things to watch
       with you"
 - [ ] One line on what accepting means: "You'll both see the titles you both like. Neither of you sees the
@@ -100,7 +102,8 @@ agreeing.
 - [ ] **Accept** and **Decline**, equally easy to reach; neither is preselected
 - [ ] Accept: the connection is made, the shared list is built from both people's current Likes, and it opens
       (empty or not, MATCH-8)
-- [ ] Decline: the link stops working, and the screen says "Declined. Sam won't be told." then goes Home
+- [ ] Decline: the link stops working, and the next screen (Home, or onboarding for a new member) shows the
+      message "Declined. Sam won't be told."
 - [ ] Signed out: sign in first, then this screen (ONBOARD-8)
 - [ ] **Privacy:** P3 for a decline; the inviter learns about an accept (NOTIF-2)
 
@@ -109,6 +112,8 @@ agreeing.
 As someone opening an invite that doesn't work, I want to know why, so that I can ask for a new one.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [expired](../../design/wireframes/png/auth--invite-can-t-be-used--expired--dw.png), [expired, phone](../../design/wireframes/png/auth--invite-can-t-be-used--expired--m.png), [doesn't work](../../design/wireframes/png/auth--invite-can-t-be-used--doesn-t-work--dw.png), [your own](../../design/wireframes/png/auth--invite-can-t-be-used--your-own--dw.png), [already connected](../../design/wireframes/png/auth--invite-can-t-be-used--already-connected--dw.png), [connection limit](../../design/wireframes/png/auth--invite-can-t-be-used--connection-limit--dw.png).
 
 | Case                            | What the screen says                                                                            |
 | ------------------------------- | ----------------------------------------------------------------------------------------------- |

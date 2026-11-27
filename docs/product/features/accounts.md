@@ -289,6 +289,8 @@ As a new member, I want to know what tapping the heart does and who sees it, so 
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [desktop and web](../../design/wireframes/png/auth--onboarding--name--dw.png), [phone, name from Google](../../design/wireframes/png/auth--onboarding--name--m.png).
+
 - [ ] One screen: "Like anything you'd want to watch. Nobody sees your Likes, not even the people you
       connect with. When you both like the same title, it's a match."
 - [ ] A name field under the text, "What should your connections call you?", filled in from Google or Apple
@@ -300,6 +302,8 @@ As a new member, I want to know what tapping the heart does and who sees it, so 
 As a new member, I want to pick a few genres, so that the titles I'm shown next fit my taste.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/auth--onboarding--genres--dw.png), [phone](../../design/wireframes/png/auth--onboarding--genres--m.png).
 
 - [ ] A grid of genre chips, each one covering movies and TV together (Action and Adventure, Comedy, Crime,
       Documentary, Drama, Family and Kids, Horror, Mystery and Thriller, Romance, Sci-Fi and Fantasy, …)
@@ -315,6 +319,8 @@ As a new member, I want to pick a few genres, so that the titles I'm shown next 
 As a new member, I want to like a few titles I already know, so that I can start matching straight away.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/auth--onboarding--first-likes--dw.png), [phone](../../design/wireframes/png/auth--onboarding--first-likes--m.png), [offline](../../design/wireframes/png/auth--onboarding--offline--dw.png), [offline, phone](../../design/wireframes/png/auth--onboarding--offline--m.png).
 
 - [ ] A grid of popular titles from the picked genres (or trending, after a skip), movies and TV shows mixed,
       each with its type shown
@@ -332,6 +338,8 @@ really want.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [desktop and web](../../design/wireframes/png/auth--onboarding--search--dw.png), [phone](../../design/wireframes/png/auth--onboarding--search--m.png).
+
 - [ ] A search field above the grid in ONBOARD-3, using the same search as SEARCH (titles only, no people)
 - [ ] Liking a result counts toward the progress line
 - [ ] Clearing the search goes back to the grid, with the new Likes at the top
@@ -341,6 +349,8 @@ really want.
 As a new member, I want to invite the person I watch with, so that we can start matching tonight.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
+
+Wireframes: [desktop and web](../../design/wireframes/png/auth--onboarding--invite--dw.png), [phone](../../design/wireframes/png/auth--onboarding--invite--m.png), [link ready](../../design/wireframes/png/auth--onboarding--invite-link-ready--dw.png), [link ready, phone](../../design/wireframes/png/auth--onboarding--invite-link-ready--m.png), [QR code, phone](../../design/wireframes/png/auth--onboarding--qr-code--m.png).
 
 - [ ] Explains in one line: "Movie Mates finds what you both want to watch. Invite the person you watch with."
 - [ ] **Create invite link** works as INVITE (copy, share sheet, and a QR code on the phone)
@@ -375,11 +385,15 @@ connected right away.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
+Wireframes: [welcome](../../design/wireframes/png/auth--welcome--invited--dw.png), [welcome, phone](../../design/wireframes/png/auth--welcome--invited--m.png), [accept or decline](../../design/wireframes/png/auth--accept-or-decline--dw.png), [after declining](../../design/wireframes/png/auth--onboarding--name--after-declining--dw.png), [after accepting, phone](../../design/wireframes/png/auth--onboarding--first-likes--after-accepting--m.png), [expired](../../design/wireframes/png/auth--invite-can-t-be-used--expired--dw.png).
+
 - [ ] Opening an invite link while signed out shows the welcome screen with who invited you: "Sam invited you
       to Movie Mates" (name and photo only)
 - [ ] After sign-in, the accept or decline screen (INVITE) comes before onboarding
 - [ ] Accepting, then onboarding: steps 1 to 3 as usual, the invite step skipped, then the shared match list
       with that person, which fills in as you like titles
+- [ ] On that path the dots show 3 steps, and step 3's button says where it goes: **See your matches with
+      Sam**
 - [ ] Declining, then onboarding as usual, with the invite step
 - [ ] An expired or used invite says so after sign-in, then onboarding as usual
 - [ ] **Privacy:** the welcome screen shows only the inviter's name and photo
@@ -391,7 +405,9 @@ doesn't lock me out.
 
 **Clients:** D W M · **Release:** first version · **Milestone:** M7 (D), M8 (W), M9 (M)
 
-- [ ] Steps 1, 2 and 5 work without TMDB
+Wireframes: [desktop and web](../../design/wireframes/png/auth--onboarding--titles-down--dw.png), [phone](../../design/wireframes/png/auth--onboarding--titles-down--m.png).
+
+- [ ] Steps 1, 2 and 4 work without TMDB
 - [ ] If titles don't load in step 3, it shows "We can't load titles right now", **Try again** and **Skip for
       now**
 - [ ] After that skip, onboarding counts as finished, and Home shows a "Like your first titles" card until

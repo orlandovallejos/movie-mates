@@ -52,6 +52,8 @@ Full screen, with no navigation, on the first sign-in only. Back goes to the pre
 | 3. First Likes, search  | ONBOARD-3, ONBOARD-4, ONBOARD-9 | D W M   | `/onboarding/likes`  |
 | 4. Invite your person   | ONBOARD-5                       | D W M   | `/onboarding/invite` |
 
+Wireframes: [every onboarding and invite frame](../design/wireframes/frames.md#auth), in the same file as sign-in.
+
 ### Browsing
 
 | Screen      | Kind                                                   | Stories                                | Clients | Address                             |
