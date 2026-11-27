@@ -64,8 +64,7 @@ Wireframes: [every onboarding and invite frame](../design/wireframes/frames.md#a
 | Trailer     | Dialog (D W); the YouTube app or an in-app browser (M) | TITLE-8                                | D W M   | —                                   |
 | Person page | Full screen                                            | PERSON-1                               | D W M   | `/person/:id`                       |
 
-Wireframes: [Home and Search](../design/wireframes/frames.md#browse); the title page, trailer and person page
-come in the second part of #157.
+Wireframes: [Home, Search, the title page, the trailer and the person page](../design/wireframes/frames.md#browse).
 
 ### Likes and your own lists
 

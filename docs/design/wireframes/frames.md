@@ -413,11 +413,71 @@ Stories: SEARCH-3
 
 ![Search · no results, filtered · M](png/browse--search--no-results-filtered--m.png)
 
+### Title page · movie · D W
+
+Stories: TITLE-1, TITLE-2, TITLE-3, TITLE-4, TITLE-5, TITLE-7
+
+![Title page · movie · D W](png/browse--title-page--movie--dw.png)
+
+### Title page · TV show · M
+
+Stories: TITLE-1, TITLE-2, TITLE-3, TITLE-4, TITLE-5, TITLE-6
+
+![Title page · TV show · M](png/browse--title-page--tv-show--m.png)
+
+### Title page · loading · D W
+
+Stories: TITLE-1
+
+![Title page · loading · D W](png/browse--title-page--loading--dw.png)
+
+### Title page · not on any service · M
+
+Stories: TITLE-4
+
+![Title page · not on any service · M](png/browse--title-page--not-on-any-service--m.png)
+
+### Title page · little data · M
+
+Stories: TITLE-1, TITLE-2
+
+![Title page · little data · M](png/browse--title-page--little-data--m.png)
+
+### Trailer · D W
+
+Stories: TITLE-8
+
+![Trailer · D W](png/browse--trailer--dw.png)
+
+### Trailer · M
+
+Stories: TITLE-8
+
+![Trailer · M](png/browse--trailer--m.png)
+
+### Person page · D W
+
+Stories: PERSON-1
+
+![Person page · D W](png/browse--person-page--dw.png)
+
+### Person page · M
+
+Stories: PERSON-1
+
+![Person page · M](png/browse--person-page--m.png)
+
 ### Home · text 200% · D W
 
 Stories: A11Y-6
 
 ![Home · text 200% · D W](png/browse--home--text-200--dw.png)
+
+### Title page · text 200% · D W
+
+Stories: A11Y-6
+
+![Title page · text 200% · D W](png/browse--title-page--text-200--dw.png)
 
 ## kit
 
